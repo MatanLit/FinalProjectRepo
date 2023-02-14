@@ -27,7 +27,6 @@ public class PlayerMovment : MonoBehaviour
     Vector3 velocity;
 
 
-    // Start is called before the first frame update
     void Start()
     {
         //Player Roataion
@@ -40,20 +39,14 @@ public class PlayerMovment : MonoBehaviour
         isGrounded = false;
         radius = 0.6f;
         gravity = -9.81f;
-
-
-
     }
 
-    // Update is called once per frame
     void Update()
     {
 
         PlayerRotation();
         PlayerMove();
         Gravity();
-
-
     }
 
     void PlayerRotation()
