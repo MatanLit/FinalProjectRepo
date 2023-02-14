@@ -1,8 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
-public class PlayerMovment : MonoBehaviour
+public class PlayerMovment : NetworkBehaviour
 {
     //Player Roataion
     float mouseX;
@@ -26,10 +27,19 @@ public class PlayerMovment : MonoBehaviour
     float gravity;
     Vector3 velocity;
 
+    // TODO: Abstraction for Network class
+    // Server
+    NetworkVariable<float> serverHorizontalPosition = new NetworkVariable<float>();
+    NetworkVariable<float> serverVerticalPosition = new NetworkVariable<float>();
+    float oldHorizontalPosition = 0;
+    float oldVerticalPosition = 0;
+
 
     void Start()
     {
-        //Player Roataion
+        transform.position = new Vector3(120, 2, 0);
+
+        //Player Rotation
         cameraX = 0f;
 
         //Player Movement
@@ -45,8 +55,32 @@ public class PlayerMovment : MonoBehaviour
     {
 
         PlayerRotation();
-        PlayerMove();
+        //PlayerMove();
         Gravity();
+
+        if (IsServer)
+        {
+            // Actual update of values of server
+            PlayerMove();
+        }
+
+        if (IsClient && IsOwner)
+        {
+            bool isPositionChanged = oldHorizontalPosition != xAxis || oldVerticalPosition != zAxis;
+            if (isPositionChanged)
+            {
+                oldVerticalPosition = zAxis;
+                oldHorizontalPosition = xAxis;
+                UpdateClientPositionServerRPC(xAxis, zAxis);
+            }
+        }
+    }
+
+    [ServerRpc]
+    public void UpdateClientPositionServerRPC(float horizontal, float vertical)
+    {
+        serverHorizontalPosition.Value = horizontal;
+        serverVerticalPosition.Value = vertical;
     }
 
     void PlayerRotation()
@@ -65,8 +99,8 @@ public class PlayerMovment : MonoBehaviour
     void PlayerMove()
     {
 
-        xAxis = Input.GetAxis("Horizontal") * moveSpeed * Time.deltaTime;
-        zAxis = Input.GetAxis("Vertical") * moveSpeed * Time.deltaTime;
+        xAxis = Input.GetAxis("Horizontal") * moveSpeed * Time.deltaTime + serverHorizontalPosition.Value;
+        zAxis = Input.GetAxis("Vertical") * moveSpeed * Time.deltaTime + serverVerticalPosition.Value;
         V = transform.forward * zAxis + transform.right * xAxis;
         cc.Move(V * moveSpeed * Time.deltaTime);
 
