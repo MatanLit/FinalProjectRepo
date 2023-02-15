@@ -7,7 +7,7 @@ public class PlayerMovment : NetworkBehaviour
 {
     //Player Roataion
     float mouseX;
-    public float lookSpeed = 45f;
+    public float lookSpeed;
     public Transform cameraTurn;
     float mouseY;
     float cameraX;
@@ -17,7 +17,7 @@ public class PlayerMovment : NetworkBehaviour
     float zAxis;
     public float moveSpeed = 10f;
     CharacterController cc;
-    Vector3 V;
+    Vector3 v;
 
     //Gravity
     public bool isGrounded;
@@ -25,7 +25,7 @@ public class PlayerMovment : NetworkBehaviour
     public LayerMask groundLayerMask;
     public Transform groundCheck;
     float gravity;
-    Vector3 velocity;
+    Vector3 velocity; // TODO: v & velocity is redundancy
 
     // TODO: Abstraction for Network class
     // Server
@@ -37,9 +37,11 @@ public class PlayerMovment : NetworkBehaviour
 
     void Start()
     {
-        transform.position = new Vector3(120, 2, 0);
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
 
         //Player Rotation
+        lookSpeed = 200f;
         cameraX = 0f;
 
         //Player Movement
@@ -49,35 +51,42 @@ public class PlayerMovment : NetworkBehaviour
         isGrounded = false;
         radius = 0.6f;
         gravity = -9.81f;
+
+        // transform.position = new Vector3(120, 2, 0);
     }
 
     void Update()
     {
+        if (!IsLocalPlayer)
+        {
+            return;
+        }
 
         PlayerRotation();
-        //PlayerMove();
+        PlayerMove();
         Gravity();
 
-        if (IsServer)
-        {
-            // Actual update of values of server
-            PlayerMove();
-        }
+        // if (IsServer)
+        // {
+        //     // Actual update of values of server
+        //     PlayerMove();
+        //     Gravity();
+        // }
 
-        if (IsClient && IsOwner)
-        {
-            bool isPositionChanged = oldHorizontalPosition != xAxis || oldVerticalPosition != zAxis;
-            if (isPositionChanged)
-            {
-                oldVerticalPosition = zAxis;
-                oldHorizontalPosition = xAxis;
-                UpdateClientPositionServerRPC(xAxis, zAxis);
-            }
-        }
+        // if (IsClient && IsOwner)
+        // {
+        //     bool isPositionChanged = oldHorizontalPosition != xAxis || oldVerticalPosition != zAxis;
+        //     if (isPositionChanged)
+        //     {
+        //         oldVerticalPosition = zAxis;
+        //         oldHorizontalPosition = xAxis;
+        //         UpdateClientPositionServerRpc(xAxis, zAxis);
+        //     }
+        // }
     }
 
     [ServerRpc]
-    public void UpdateClientPositionServerRPC(float horizontal, float vertical)
+    public void UpdateClientPositionServerRpc(float horizontal, float vertical)
     {
         serverHorizontalPosition.Value = horizontal;
         serverVerticalPosition.Value = vertical;
@@ -98,16 +107,16 @@ public class PlayerMovment : NetworkBehaviour
 
     void PlayerMove()
     {
-
-        xAxis = Input.GetAxis("Horizontal") * moveSpeed * Time.deltaTime + serverHorizontalPosition.Value;
-        zAxis = Input.GetAxis("Vertical") * moveSpeed * Time.deltaTime + serverVerticalPosition.Value;
-        V = transform.forward * zAxis + transform.right * xAxis;
-        cc.Move(V * moveSpeed * Time.deltaTime);
-
+        // serverHorizontalPosition.Value + serverVerticalPosition.Value?
+        xAxis = Input.GetAxis("Horizontal") * moveSpeed * Time.deltaTime;
+        zAxis = Input.GetAxis("Vertical") * moveSpeed * Time.deltaTime;
+        v = transform.forward * zAxis + transform.right * xAxis;
+        print($"v {v} move: {v * moveSpeed * Time.deltaTime}");
+        cc.Move(v * moveSpeed * Time.deltaTime);
     }
 
     void Gravity()
-	{
+    {
 
         if (Physics.CheckSphere(groundCheck.position, radius, groundLayerMask))
         {
@@ -133,6 +142,5 @@ public class PlayerMovment : NetworkBehaviour
         }
 
         cc.Move(velocity * Time.deltaTime);
-
     }
 }
