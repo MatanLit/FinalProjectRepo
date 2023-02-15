@@ -1,7 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerMovment : NetworkBehaviour
 {
@@ -29,16 +31,14 @@ public class PlayerMovment : NetworkBehaviour
 
     // TODO: Abstraction for Network class
     // Server
-    NetworkVariable<float> serverHorizontalPosition = new NetworkVariable<float>();
-    NetworkVariable<float> serverVerticalPosition = new NetworkVariable<float>();
-    float oldHorizontalPosition = 0;
-    float oldVerticalPosition = 0;
-
+    NetworkVariable<Vector3> moveVectorNetwork = new NetworkVariable<Vector3>();
+    Vector3 oldMoveVector = Vector3.zero;
+    Vector3 moveVector = Vector3.zero;
 
     void Start()
     {
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+        //Cursor.lockState = CursorLockMode.Locked;
+        //Cursor.visible = false;
 
         //Player Rotation
         lookSpeed = 200f;
@@ -52,44 +52,40 @@ public class PlayerMovment : NetworkBehaviour
         radius = 0.6f;
         gravity = -9.81f;
 
-        // transform.position = new Vector3(120, 2, 0);
+         transform.position = new Vector3(0, 0, 0);
     }
 
     void Update()
     {
-        if (!IsLocalPlayer)
-        {
-            return;
-        }
-
         PlayerRotation();
-        PlayerMove();
         Gravity();
 
-        // if (IsServer)
-        // {
-        //     // Actual update of values of server
-        //     PlayerMove();
-        //     Gravity();
-        // }
+        print($"{moveVectorNetwork.Value}");
 
-        // if (IsClient && IsOwner)
-        // {
-        //     bool isPositionChanged = oldHorizontalPosition != xAxis || oldVerticalPosition != zAxis;
-        //     if (isPositionChanged)
-        //     {
-        //         oldVerticalPosition = zAxis;
-        //         oldHorizontalPosition = xAxis;
-        //         UpdateClientPositionServerRpc(xAxis, zAxis);
-        //     }
-        // }
+        if (IsServer)
+        {
+            GameObject.Find("IsServer").GetComponent<TextMeshProUGUI>().text = "IS SERVER";
+            moveVector = moveVectorNetwork.Value;
+            PlayerMove();
+            cc.Move(moveVector);
+        }
+
+        if (IsClient && IsOwner)
+        {
+            GameObject.Find("IsClient").GetComponent<TextMeshProUGUI>().text = "IS CLIENT + OWNER";
+            if (oldMoveVector != moveVector)
+            {
+                oldMoveVector = moveVector;
+                PlayerMove();
+                UpdateClientPositionServerRpc(moveVector);
+            }
+        }
     }
 
     [ServerRpc]
-    public void UpdateClientPositionServerRpc(float horizontal, float vertical)
+    public void UpdateClientPositionServerRpc(Vector3 moveVector)
     {
-        serverHorizontalPosition.Value = horizontal;
-        serverVerticalPosition.Value = vertical;
+        moveVectorNetwork.Value = moveVector;
     }
 
     void PlayerRotation()
@@ -107,12 +103,11 @@ public class PlayerMovment : NetworkBehaviour
 
     void PlayerMove()
     {
-        // serverHorizontalPosition.Value + serverVerticalPosition.Value?
         xAxis = Input.GetAxis("Horizontal") * moveSpeed * Time.deltaTime;
         zAxis = Input.GetAxis("Vertical") * moveSpeed * Time.deltaTime;
         v = transform.forward * zAxis + transform.right * xAxis;
-        print($"v {v} move: {v * moveSpeed * Time.deltaTime}");
-        cc.Move(v * moveSpeed * Time.deltaTime);
+
+        moveVector = v * moveSpeed * Time.deltaTime;
     }
 
     void Gravity()
