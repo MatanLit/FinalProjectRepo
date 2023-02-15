@@ -27,6 +27,6 @@ public class TimeShiftableObject : MonoBehaviour
 
     void UpdateMesh()
     {
-        GetComponent<MeshFilter>().mesh = upgradeables[timeShiftLevel].GetComponent<MeshFilter>().mesh;
+        GetComponent<MeshRenderer>().sharedMaterial = upgradeables[timeShiftLevel].GetComponent<MeshRenderer>().sharedMaterial;
     }
 }
