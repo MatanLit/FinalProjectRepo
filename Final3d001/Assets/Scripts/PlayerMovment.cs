@@ -52,45 +52,62 @@ public class PlayerMovment : NetworkBehaviour
         radius = 0.6f;
         gravity = -9.81f;
 
-         transform.position = new Vector3(0, 0, 0);
+        transform.position = new Vector3(0, 0, 0);
     }
 
     void Update()
     {
-        PlayerRotation();
-        Gravity();
-
-        print($"{moveVectorNetwork.Value}");
+        //PlayerRotation();
 
         if (IsServer)
         {
-            GameObject.Find("IsServer").GetComponent<TextMeshProUGUI>().text = "IS SERVER";
-            moveVector = moveVectorNetwork.Value;
-            PlayerMove();
-            cc.Move(moveVector);
+            UpdateServer();
         }
+
+        //if (IsClient && IsOwner)
+        //{
+        //    UpdateMoveVector();
+
+        //    if (oldMoveVector != moveVector)
+        //    {
+        //        oldMoveVector = moveVector;
+        //        UpdateClientPositionServerRpc(moveVector);
+        //    }
+        //}
 
         if (IsClient && IsOwner)
         {
-            GameObject.Find("IsClient").GetComponent<TextMeshProUGUI>().text = "IS CLIENT + OWNER";
-            if (oldMoveVector != moveVector)
-            {
-                oldMoveVector = moveVector;
-                PlayerMove();
-                UpdateClientPositionServerRpc(moveVector);
-            }
+            UpdateClient();
+        }
+    }
+
+    void UpdateServer()
+    {
+        cc.Move(moveVectorNetwork.Value);
+    }
+
+    void UpdateClient()
+    {
+        xAxis = Input.GetAxis("Horizontal") * moveSpeed * Time.deltaTime;
+        zAxis = Input.GetAxis("Vertical") * moveSpeed * Time.deltaTime;
+        v = transform.forward * zAxis + transform.right * xAxis;
+        moveVector = v * moveSpeed * Time.deltaTime;
+
+        if (oldMoveVector != moveVector)
+        {
+            oldMoveVector = moveVector;
+            UpdateClientPositionServerRPC(moveVector);
         }
     }
 
     [ServerRpc]
-    public void UpdateClientPositionServerRpc(Vector3 moveVector)
+    public void UpdateClientPositionServerRPC(Vector3 vector)
     {
-        moveVectorNetwork.Value = moveVector;
+        moveVectorNetwork.Value = vector;
     }
 
     void PlayerRotation()
     {
-
         mouseX = Input.GetAxis("Mouse X") * lookSpeed * Time.deltaTime;
         transform.Rotate(0, mouseX, 0);
         mouseY = Input.GetAxis("Mouse Y") * lookSpeed * Time.deltaTime;
@@ -98,17 +115,16 @@ public class PlayerMovment : NetworkBehaviour
         cameraX -= mouseY;
         cameraX = Mathf.Clamp(cameraX, -90, 90);
         cameraTurn.localRotation = Quaternion.Euler(cameraX, 0, 0);
-
     }
 
-    void PlayerMove()
-    {
-        xAxis = Input.GetAxis("Horizontal") * moveSpeed * Time.deltaTime;
-        zAxis = Input.GetAxis("Vertical") * moveSpeed * Time.deltaTime;
-        v = transform.forward * zAxis + transform.right * xAxis;
+    //void UpdateMoveVector()
+    //{
+    //    xAxis = Input.GetAxis("Horizontal") * moveSpeed * Time.deltaTime;
+    //    zAxis = Input.GetAxis("Vertical") * moveSpeed * Time.deltaTime;
+    //    v = transform.forward * zAxis + transform.right * xAxis;
 
-        moveVector = v * moveSpeed * Time.deltaTime;
-    }
+    //    moveVector = v * moveSpeed * Time.deltaTime;
+    //}
 
     void Gravity()
     {

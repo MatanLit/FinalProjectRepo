@@ -15,6 +15,7 @@ using Unity.Networking.Transport;
 using Unity.Networking.Transport.Relay;
 using TMPro;
 using UnityEngine.UI;
+//using ParrelSync;
 
 public class NetworkController : MonoBehaviour
 {
@@ -35,7 +36,7 @@ public class NetworkController : MonoBehaviour
         // Sign in anonymously
         yield return AuthenticationService.Instance.SignInAnonymouslyAsync();
 
-
+        // ClonesManager.IsClone()
         if (isHost)
         {
             var serverRelayUtilityTask = AllocateRelayServerAndGetJoinCode(20, relayServerJoinCode);
@@ -55,6 +56,7 @@ public class NetworkController : MonoBehaviour
                 yield return null;
             }
 
+            print($"JOIN CODE {relayServerJoinCode.text}");
             var clientRelayUtilityTask = JoinRelayServerFromJoinCode(relayServerJoinCode.text);
 
             while (!clientRelayUtilityTask.IsCompleted)
