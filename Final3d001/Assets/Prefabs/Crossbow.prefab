@@ -569,8 +569,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eefbff104cce7234b9e12e7c99e1ff8b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  arrowSpawnPointPos: {fileID: 0}
-  arrowPrefab: {fileID: 0}
+  arrowSpawnPointPos: {fileID: 3212503044338340060, guid: cc05fd0f40b72114a90c132003fd60b0, type: 3}
+  arrowPrefab: {fileID: 2872956620283152998, guid: cc05fd0f40b72114a90c132003fd60b0, type: 3}
 --- !u!1 &3952525201443882763
 GameObject:
   m_ObjectHideFlags: 0

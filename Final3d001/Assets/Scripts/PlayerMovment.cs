@@ -92,7 +92,7 @@ public class PlayerMovment : NetworkBehaviour
         cameraTurn.localRotation = Quaternion.Euler(rotationXNetwork.Value, 0, 0);
 
         cc.Move(moveVectorNetwork.Value);
-        cc.Move(velocity * Time.deltaTime);
+        cc.Move(velocityNetwork.Value * Time.deltaTime);
     }
 
     void UpdateFromClient()
