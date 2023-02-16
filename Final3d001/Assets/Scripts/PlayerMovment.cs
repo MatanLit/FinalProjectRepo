@@ -17,7 +17,7 @@ public class PlayerMovment : NetworkBehaviour
     //Player Movement
     float xAxis;
     float zAxis;
-    public float moveSpeed = 10f;
+    public float moveSpeed;
     CharacterController cc;
     Vector3 v;
 
@@ -35,18 +35,20 @@ public class PlayerMovment : NetworkBehaviour
     NetworkVariable<Quaternion> localRotationNetwork = new NetworkVariable<Quaternion>();
     Vector3 oldMoveVector = Vector3.zero;
     Vector3 moveVector = Vector3.zero;
+
     Quaternion oldLocalRotation = Quaternion.identity;
 
     void Start()
     {
-        //Cursor.lockState = CursorLockMode.Locked;
-        //Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
 
         //Player Rotation
-        lookSpeed = 200f;
+        lookSpeed = 500f;
         rotationX = 0f;
 
         //Player Movement
+        moveSpeed = 20f;
         cc = GetComponent<CharacterController>();
 
         //Gravity
@@ -74,6 +76,7 @@ public class PlayerMovment : NetworkBehaviour
     void UpdateServer()
     {
         //transform.Rotate(0, localRotationNetwork.Value.y, 0);
+
         // TODO: I think the delay bug is because this is just an update to the server. We
         // need move in the client as well
         cc.Move(moveVectorNetwork.Value);
