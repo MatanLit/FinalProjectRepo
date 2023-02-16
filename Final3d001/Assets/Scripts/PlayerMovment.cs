@@ -17,7 +17,7 @@ public class PlayerMovment : NetworkBehaviour
     //Player Movement
     float xAxis;
     float zAxis;
-    public float moveSpeed = 10f;
+    public float moveSpeed;
     CharacterController cc;
     Vector3 v;
 
@@ -39,14 +39,15 @@ public class PlayerMovment : NetworkBehaviour
 
     void Start()
     {
-        //Cursor.lockState = CursorLockMode.Locked;
-        //Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
 
         //Player Rotation
-        lookSpeed = 200f;
+        lookSpeed = 500f;
         rotationX = 0f;
 
         //Player Movement
+        moveSpeed = 20f;
         cc = GetComponent<CharacterController>();
 
         //Gravity
