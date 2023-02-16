@@ -1,10 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
-public class PlayerKillController : MonoBehaviour
+public class PlayerKillController : NetworkBehaviour
 {
-    // Start is called before the first frame update
+    NetworkVariable<bool> shouldUpgradeNetworkVariable = new NetworkVariable<bool>();
+    bool oldShouldUpgrade = false;
+
     void Start()
     {
         
@@ -13,9 +16,24 @@ public class PlayerKillController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.K))
+        if (oldShouldUpgrade != shouldUpgradeNetworkVariable.Value)
         {
             GameManager.ShiftTimeForAllUpgradeableObjects();
+            UpgradeAllClientsServerRpc();
         }
+
+        if (IsClient && IsOwner)
+        {
+            if (Input.GetKeyDown(KeyCode.K))
+            {
+                GameManager.ShiftTimeForAllUpgradeableObjects();
+            }
+        }
+    }
+
+    [ServerRpc]
+    void UpgradeAllClientsServerRpc()
+    {
+        shouldUpgradeNetworkVariable.Value = !shouldUpgradeNetworkVariable.Value;
     }
 }

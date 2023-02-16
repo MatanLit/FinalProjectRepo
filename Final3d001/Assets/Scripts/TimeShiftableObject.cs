@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+// TODO: GameManager should inherit from NetworkBehaviour and transfer data to all objects
 public class TimeShiftableObject : MonoBehaviour
 {
     [SerializeField] int timeShiftLevel = 0;

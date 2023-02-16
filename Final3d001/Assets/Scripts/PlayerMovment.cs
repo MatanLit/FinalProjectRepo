@@ -35,6 +35,7 @@ public class PlayerMovment : NetworkBehaviour
     NetworkVariable<Quaternion> localRotationNetwork = new NetworkVariable<Quaternion>();
     Vector3 oldMoveVector = Vector3.zero;
     Vector3 moveVector = Vector3.zero;
+
     Quaternion oldLocalRotation = Quaternion.identity;
 
     void Start()
@@ -75,6 +76,7 @@ public class PlayerMovment : NetworkBehaviour
     void UpdateServer()
     {
         //transform.Rotate(0, localRotationNetwork.Value.y, 0);
+
         // TODO: I think the delay bug is because this is just an update to the server. We
         // need move in the client as well
         cc.Move(moveVectorNetwork.Value);
