@@ -12,7 +12,7 @@ public class PlayerMovment : NetworkBehaviour
     public float lookSpeed;
     public Transform cameraTurn;
     float mouseY;
-    float cameraX;
+    float rotationX;
 
     //Player Movement
     float xAxis;
@@ -32,8 +32,10 @@ public class PlayerMovment : NetworkBehaviour
     // TODO: Abstraction for Network class
     // Server
     NetworkVariable<Vector3> moveVectorNetwork = new NetworkVariable<Vector3>();
+    NetworkVariable<Quaternion> localRotationNetwork = new NetworkVariable<Quaternion>();
     Vector3 oldMoveVector = Vector3.zero;
     Vector3 moveVector = Vector3.zero;
+    Quaternion oldLocalRotation = Quaternion.identity;
 
     void Start()
     {
@@ -42,7 +44,7 @@ public class PlayerMovment : NetworkBehaviour
 
         //Player Rotation
         lookSpeed = 200f;
-        cameraX = 0f;
+        rotationX = 0f;
 
         //Player Movement
         cc = GetComponent<CharacterController>();
@@ -57,23 +59,11 @@ public class PlayerMovment : NetworkBehaviour
 
     void Update()
     {
-        //PlayerRotation();
 
         if (IsServer)
         {
             UpdateServer();
         }
-
-        //if (IsClient && IsOwner)
-        //{
-        //    UpdateMoveVector();
-
-        //    if (oldMoveVector != moveVector)
-        //    {
-        //        oldMoveVector = moveVector;
-        //        UpdateClientPositionServerRpc(moveVector);
-        //    }
-        //}
 
         if (IsClient && IsOwner)
         {
@@ -83,48 +73,48 @@ public class PlayerMovment : NetworkBehaviour
 
     void UpdateServer()
     {
+        //transform.Rotate(0, localRotationNetwork.Value.y, 0);
+        // TODO: I think the delay bug is because this is just an update to the server. We
+        // need move in the client as well
         cc.Move(moveVectorNetwork.Value);
     }
 
     void UpdateClient()
     {
+        PlayerRotation();
+
+        // TODO: Put this back in a move method
         xAxis = Input.GetAxis("Horizontal") * moveSpeed * Time.deltaTime;
         zAxis = Input.GetAxis("Vertical") * moveSpeed * Time.deltaTime;
         v = transform.forward * zAxis + transform.right * xAxis;
         moveVector = v * moveSpeed * Time.deltaTime;
 
-        if (oldMoveVector != moveVector)
+        if (oldMoveVector != moveVector || transform.localRotation != oldLocalRotation)
         {
             oldMoveVector = moveVector;
-            UpdateClientPositionServerRPC(moveVector);
+            oldLocalRotation = transform.localRotation;
+            UpdateClientPositionServerRpc(moveVector, transform.localRotation);
         }
     }
 
     [ServerRpc]
-    public void UpdateClientPositionServerRPC(Vector3 vector)
+    public void UpdateClientPositionServerRpc(Vector3 vector, Quaternion localRotation)
     {
         moveVectorNetwork.Value = vector;
+        localRotationNetwork.Value = localRotation;
     }
 
     void PlayerRotation()
     {
         mouseX = Input.GetAxis("Mouse X") * lookSpeed * Time.deltaTime;
-        transform.Rotate(0, mouseX, 0);
         mouseY = Input.GetAxis("Mouse Y") * lookSpeed * Time.deltaTime;
-        cameraTurn.Rotate(mouseY, 0, 0);
-        cameraX -= mouseY;
-        cameraX = Mathf.Clamp(cameraX, -90, 90);
-        cameraTurn.localRotation = Quaternion.Euler(cameraX, 0, 0);
+
+        rotationX -= mouseY;
+        rotationX = Mathf.Clamp(rotationX, -90, 90);
+
+        transform.Rotate(0, mouseX, 0);
+        cameraTurn.localRotation = Quaternion.Euler(rotationX, 0, 0);
     }
-
-    //void UpdateMoveVector()
-    //{
-    //    xAxis = Input.GetAxis("Horizontal") * moveSpeed * Time.deltaTime;
-    //    zAxis = Input.GetAxis("Vertical") * moveSpeed * Time.deltaTime;
-    //    v = transform.forward * zAxis + transform.right * xAxis;
-
-    //    moveVector = v * moveSpeed * Time.deltaTime;
-    //}
 
     void Gravity()
     {
