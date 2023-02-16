@@ -7,21 +7,12 @@ using UnityEngine;
 public class CameraController : NetworkBehaviour
 {
     public GameObject mainCamera;
-    public Transform cameraTurn;
-    [SerializeField] Transform playerTransform;
-
-    float mouseX;
-    float lookSpeed;
-    float mouseY;
-    float cameraX;
 
     private void Start()
     {
         if (IsClient && IsOwner)
         {
             mainCamera.SetActive(true);
-            lookSpeed = 200f;
-            cameraX = 0f;
         }
     }
 
