@@ -3,16 +3,36 @@ using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
-public class PlayerKillController : MonoBehaviour
+public class PlayerKillController : NetworkBehaviour
 {
+    int health = 100;
+    int killCount = 0;
+
     void Start() { }
 
-    // Update is called once per frame
-    void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.K))
+    void Update() {
+
+        if (Input.GetKeyDown(KeyCode.Space))
         {
-            GameManager.ShiftTimeForAllUpgradeableObjects();
+
+        }
+    }
+
+    void OnKill()
+    {
+        killCount++;
+        GameManager.globalKillCount++;
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.tag == "Weapon")
+        {
+            health -= 10;
+            if (health <= 0)
+            {
+                GetComponent<NetworkObject>().Spawn();
+            }
         }
     }
 }

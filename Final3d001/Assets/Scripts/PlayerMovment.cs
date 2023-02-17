@@ -115,7 +115,6 @@ public class PlayerMovment : NetworkBehaviour
         bool isRotationXChanged = oldRotationX != rotationX;
         bool isRotationYChanged = oldRotationY != mouseX;
 
-        //print($"move change? {isMovementChanged} gravity change? {isGravityChanged} rotation x change? {isRotationXChanged} rotation y change? {isRotationYChanged}");
         if (isMovementChanged || isGravityChanged || isRotationXChanged || isRotationYChanged)
         {
             oldMoveVector = moveVector;
