@@ -5,7 +5,7 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class PlayerMovment : NetworkBehaviour
+public class PlayerMovement : NetworkBehaviour
 {
     //Player Roataion
     float mouseX;
@@ -45,6 +45,7 @@ public class PlayerMovment : NetworkBehaviour
     Vector3 oldVelocity = Vector3.zero;
 
     bool isLookingLocked = false;
+    Vector3 spawnPosition;
 
     void Start()
     {
@@ -64,12 +65,12 @@ public class PlayerMovment : NetworkBehaviour
         radius = 0.6f;
         gravity = -9.81f;
 
-        transform.position = new Vector3(10, 0, 10);
+        spawnPosition = GameManager.GetAvailableSpawnPoint();
+        transform.position = spawnPosition;
     }
 
     void Update()
     {
-
         if (IsServer)
         {
             UpdateFromServer();
@@ -123,12 +124,24 @@ public class PlayerMovment : NetworkBehaviour
             oldRotationX = rotationX;
             oldRotationY = mouseX;
 
-            UpdateClientPositionServerRpc(moveVector, transform.localRotation, velocity, rotationX, mouseX);
+            UpdateClientPositionServerRpc(
+                moveVector,
+                transform.localRotation,
+                velocity,
+                rotationX,
+                mouseX
+            );
         }
     }
 
     [ServerRpc]
-    public void UpdateClientPositionServerRpc(Vector3 vector, Quaternion localRotation, Vector3 velocity, float rotationX, float rotationY)
+    public void UpdateClientPositionServerRpc(
+        Vector3 vector,
+        Quaternion localRotation,
+        Vector3 velocity,
+        float rotationX,
+        float rotationY
+    )
     {
         moveVectorNetwork.Value = vector;
         localRotationNetwork.Value = localRotation;
@@ -145,7 +158,6 @@ public class PlayerMovment : NetworkBehaviour
         rotationX -= mouseY;
         rotationX = Mathf.Clamp(rotationX, -90, 90);
 
-
         transform.Rotate(0, mouseX, 0);
         cameraTurn.localRotation = Quaternion.Euler(rotationX, 0, 0);
     }
@@ -161,7 +173,6 @@ public class PlayerMovment : NetworkBehaviour
 
     void UpdateGravity()
     {
-
         if (Physics.CheckSphere(groundCheck.position, radius, groundLayerMask))
         {
             isGrounded = true;
@@ -184,6 +195,10 @@ public class PlayerMovment : NetworkBehaviour
         {
             velocity.y += 6f;
         }
+    }
 
+    public void Respawn()
+    {
+        transform.position = spawnPosition;
     }
 }

@@ -38,24 +38,17 @@ public class PlayerKillController : NetworkBehaviour
     {
         health -= 10;
         print("Player hit! Health: " + health);
+
+        if (health <= 0)
+        {
+            health = 100;
+            GetComponent<PlayerMovement>().Respawn();
+        }
     }
 
     void OnKill()
     {
         killCount++;
         GameManager.globalKillCount++;
-    }
-
-    private void OnCollisionEnter(Collision collision)
-    {
-        if (collision.gameObject.tag == "Weapon")
-        {
-            health -= 10;
-            if (health <= 0)
-            {
-                health = 100;
-                GetComponent<NetworkObject>().Spawn();
-            }
-        }
     }
 }
