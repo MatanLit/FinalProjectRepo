@@ -42,16 +42,16 @@ public class GameManager : MonoBehaviour
     // Vector3 and boolean
     public static int[][] spawnPoints = new int[10][]
     {
-        new int[3] { 7, 0, 8 },
-        new int[3] { 20, 4, 26 },
-        new int[3] { 30, 0, 20 },
-        new int[3] { 40, 0, 20 },
-        new int[3] { 50, 0, 20 },
-        new int[3] { 60, 0, 20 },
-        new int[3] { 70, 0, 20 },
-        new int[3] { 80, 0, 20 },
-        new int[3] { 90, 0, 20 },
-        new int[3] { 100, 0, 20 },
+        new int[4] { 7, 0, 8, 0 },
+        new int[4] { 20, 4, 26, 0 },
+        new int[4] { 30, 0, 20, 0 },
+        new int[4] { 40, 0, 20, 0 },
+        new int[4] { 50, 0, 20, 0 },
+        new int[4] { 60, 0, 20, 0 },
+        new int[4] { 70, 0, 20, 0 },
+        new int[4] { 80, 0, 20, 0 },
+        new int[4] { 90, 0, 20, 0 },
+        new int[4] { 100, 0, 20, 0 },
     };
 
     void Start() { }
@@ -91,10 +91,11 @@ public class GameManager : MonoBehaviour
     {
         for (int i = 0; i < spawnPoints.Length; i++)
         {
-            if (spawnPoints[i][2] == 1)
+            if (spawnPoints[i][3] == 0) // 0 = not taken
             {
-                // FIXME:
-                return new Vector3(spawnPoints[i][0], spawnPoints[i][1], spawnPoints[i][2]);
+                Vector3 availablePosition = new Vector3(spawnPoints[i][0], spawnPoints[i][1], spawnPoints[i][2]);
+                spawnPoints[i][3] = 1; // 1 = taken
+                return availablePosition;
             }
         }
 
