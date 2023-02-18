@@ -48,8 +48,8 @@ public class PlayerMovment : NetworkBehaviour
 
     void Start()
     {
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+        //Cursor.lockState = CursorLockMode.Locked;
+        //Cursor.visible = false;
 
         //Player Rotation
         lookSpeed = 500f;

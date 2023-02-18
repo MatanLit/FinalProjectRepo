@@ -15,7 +15,7 @@ public class TimeShiftableObject : MonoBehaviour
     {
         for (int i = 0; i < upgradeables.Count; i++)
         {
-            GameObject upgradeableObject = Instantiate(upgradeables[i], transform);
+            GameObject upgradeableObject = Instantiate(upgradeables[i], transform.position, Quaternion.identity);
             upgradeableObject.SetActive(i == timeShiftLevel);
             upgradeableObject.transform.parent = transform;
         }
