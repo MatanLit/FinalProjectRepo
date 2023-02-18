@@ -44,19 +44,16 @@ public class PistolEngine : MonoBehaviour
 
     void Shoot()
     {
-
         // GetComponent<AudioSource>().Play();
 
         Debug.Log(roundsRemaining);
         Debug.Log(roundsInInventory);
 
-        GameObject bullet = Instantiate(bulletPrefab, gunBarrel.transform.position, gunBarrel.transform.rotation);                
-       
 
-        RaycastHit hit;
-        if (Physics.Raycast(fpsCamera.transform.position, fpsCamera.transform.forward, out hit, range))
+        GameObject bullet = Instantiate(bulletPrefab, transform);
+
+        if (Physics.Raycast(fpsCamera.transform.position, fpsCamera.transform.forward, out RaycastHit hit, range))
         {
-
             Quaternion rotation = Quaternion.LookRotation(hit.normal, Vector3.up);
             GameObject bulletHole = Instantiate(bulletHolePrefab, hit.point, rotation);
             bulletHole.transform.parent = hit.transform;

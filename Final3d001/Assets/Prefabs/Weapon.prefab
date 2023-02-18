@@ -13,7 +13,6 @@ GameObject:
   - component: {fileID: 4544947596011221979}
   - component: {fileID: 6694310328986369313}
   - component: {fileID: -6867453056528415588}
-  - component: {fileID: 7342351934121439746}
   m_Layer: 0
   m_Name: Weapon
   m_TagString: TimeShiftable
@@ -116,19 +115,3 @@ MonoBehaviour:
   - {fileID: 7552527495954499963, guid: 5076442214d7f4144aa117cb98b50c95, type: 3}
   - {fileID: 1476189340020724924, guid: b980691fedb9f4e498ec0e4d337de040, type: 3}
   - {fileID: 9109353033369157320, guid: ecd6ffed442e6884fb136b8a7a88910e, type: 3}
---- !u!114 &7342351934121439746
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5859558824081102153}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 951099334
-  AlwaysReplicateAsRoot: 0
-  DontDestroyWithOwner: 0
-  AutoObjectParentSync: 1

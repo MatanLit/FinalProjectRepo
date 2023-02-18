@@ -12,6 +12,11 @@ public class PlayerKillController : NetworkBehaviour
 
     void Update()
     {
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            GameObject.Find("Weapon").GetComponent<TimeShiftableObject>().TimeShift();
+        }
+        
         if (Input.GetKeyDown(KeyCode.N))
         {
             // raycast forward
@@ -49,6 +54,6 @@ public class PlayerKillController : NetworkBehaviour
     void OnKill()
     {
         killCount++;
-        GameManager.globalKillCount++;
+        GameManager.GlobalKillCount++;
     }
 }

@@ -29,18 +29,18 @@ public class ArrowEngine : MonoBehaviour
     {
         Debug.Log("Hit!");
 
-        if (collision.gameObject.CompareTag("Arrow"))
+        if (!collision.gameObject.CompareTag("Arrow")) return;
+        
+        GameObject arrow = collision.gameObject;
+
+        arrow.transform.parent = collision.transform;
+        arrow.transform.position = collision.contacts[0].point - arrow.transform.forward * penetrationDepth;
+
+        Rigidbody arrowRigidbody = arrow.GetComponent<Rigidbody>();
+        
+        if (arrowRigidbody)
         {
-            GameObject arrow = collision.gameObject;
-
-            arrow.transform.parent = collision.transform;
-            arrow.transform.position = collision.contacts[0].point - arrow.transform.forward * penetrationDepth;
-
-            Rigidbody arrowRigidbody = arrow.GetComponent<Rigidbody>();
-            if (arrowRigidbody)
-            {
-                arrowRigidbody.isKinematic = true;
-            }
+            arrowRigidbody.isKinematic = true;
         }
     }
 
