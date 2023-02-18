@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Numerics;
 using TMPro;
 using Unity.Netcode;
 using UnityEngine;
@@ -66,7 +67,8 @@ public class PlayerMovement : NetworkBehaviour
         gravity = -9.81f;
 
         spawnPosition = GameManager.GetAvailableSpawnPoint();
-        transform.position = spawnPosition;
+        //transform.position = spawnPosition;
+        transform.position = new Vector3(10, 0, 10);
     }
 
     void Update()
