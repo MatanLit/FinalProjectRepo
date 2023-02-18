@@ -91,11 +91,20 @@ public class PlayerMovement : NetworkBehaviour
         // TODO: I think the delay bug is because this is just an update to the server. We
         // need move in the client as well
 
+        /**
+         *      transform.Rotate(0, mouseX, 0);
+                cameraTurn.localRotation = Quaternion.Euler(rotationX, 0, 0);
+         */
+
+        // TODO: Check if maybe the issue is that we need to add here local values,
+        // rotationY + rotationYNetwork or moveVectorNetwork + moveVector
         transform.Rotate(0, rotationYNetwork.Value, 0);
         cameraTurn.localRotation = Quaternion.Euler(rotationXNetwork.Value, 0, 0);
 
-        cc.Move(moveVectorNetwork.Value);
-        cc.Move(velocityNetwork.Value * Time.deltaTime);
+        //cc.Move(moveVectorNetwork.Value);
+        // cc.Move(velocityNetwork.Value + moveVectorNetwork.Value * Time.deltaTime);
+        print($"Velocity: {velocityNetwork.Value} MoveVector: {moveVectorNetwork.Value} moveVector: {moveVector}");
+        cc.Move(new Vector3(moveVectorNetwork.Value.x, velocityNetwork.Value.y, moveVectorNetwork.Value.z));
     }
 
     void UpdateFromClient()
@@ -161,6 +170,7 @@ public class PlayerMovement : NetworkBehaviour
         rotationX = Mathf.Clamp(rotationX, -90, 90);
 
         transform.Rotate(0, mouseX, 0);
+
         cameraTurn.localRotation = Quaternion.Euler(rotationX, 0, 0);
     }
 
