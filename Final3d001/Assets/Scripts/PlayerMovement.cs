@@ -71,6 +71,15 @@ public class PlayerMovement : NetworkBehaviour
         transform.position = spawnPosition;
     }
 
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.T))
+        {
+            TeleportToNextSpawnPoint();
+        }
+    }
+
+
     void FixedUpdate()
     {
         if (IsServer)
@@ -82,6 +91,12 @@ public class PlayerMovement : NetworkBehaviour
         {
             UpdateFromClient();
         }
+    }
+    
+    void TeleportToNextSpawnPoint()
+    {
+        spawnPosition = GameManager.GetAvailableSpawnPoint();
+        transform.position = spawnPosition;
     }
 
     void UpdateFromServer()
