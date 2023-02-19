@@ -29,8 +29,10 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
-        if (uniqueKilledPlayerIds.Count >= playerIds.Count / 2)
+        print($"GlobalKillCount: {GlobalKillCount}");
+        if (GlobalKillCount >= 1)
         {
+            GlobalKillCount = 0;
             ShiftTimeForAllUpgradeableUIObjects();
         }
     }
