@@ -9,8 +9,11 @@ public class GameManager : NetworkBehaviour
     public static int GlobalKillCount = 0;
     private NetworkVariable<int> GlobalKillCountNetwork = new NetworkVariable<int>();
     List<string> uniqueKilledPlayerIds = new List<string>();
-    List<string> playerIds = new List<string>();
-
+    
+    // static List<string> playerIds = new List<string>();
+    // private List<string> oldPlayerIds;
+    // private static NetworkVariable<List<string>> playerIdsNetwork = new NetworkVariable<List<string>>();
+    
     // List of spwan points in map. TODO: Some data structure that combines
     // Vector3 and boolean
     public static int[][] SpawnPoints = new int[30][]
@@ -63,6 +66,12 @@ public class GameManager : NetworkBehaviour
             GlobalKillCount = 0;
         }
     }
+    
+    // [ServerRpc]
+    // public void AddPlayerServerRpc(string playerId)
+    // {
+    //     playerIdsNetwork.Value.Add(playerId);
+    // }
     
     [ServerRpc]
     public void SendUpdateToAllClientsServerRpc(int killCount)

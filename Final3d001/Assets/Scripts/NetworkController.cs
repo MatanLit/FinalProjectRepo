@@ -1,21 +1,16 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
 using Unity.Services.Core;
 using Unity.Services.Authentication;
 using Unity.Services.Relay;
-using Unity.Services.Relay.Http;
 using Unity.Services.Relay.Models;
 using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
-using Unity.Networking.Transport;
 using Unity.Networking.Transport.Relay;
 using TMPro;
-using UnityEngine.UI;
-//using ParrelSync;
 
 public class NetworkController : MonoBehaviour
 {
@@ -73,6 +68,11 @@ public class NetworkController : MonoBehaviour
             RelayServerData relayServerData = clientRelayUtilityTask.Result;
 
             NetworkManager.Singleton.GetComponent<UnityTransport>().SetRelayServerData(relayServerData);
+            
+            print($"PlayerID: {AuthenticationService.Instance.PlayerId}");
+            
+            // GameManager.AddPlayer(AuthenticationService.Instance.PlayerId);
+
             NetworkManager.Singleton.StartClient();
         }
     }

@@ -13,7 +13,7 @@ public class PlayerKillController : NetworkBehaviour
     {
         if (IsClient && IsOwner)
         {
-            shiftableWeapon = GameObject.Find("Weapon").GetComponent<TimeShiftableObject>();
+            // shiftableWeapon = GameObject.Find("Weapon").GetComponent<TimeShiftableObject>();
         }
     }
 
@@ -24,10 +24,10 @@ public class PlayerKillController : NetworkBehaviour
             return;
         }
         
-        if (Input.GetKeyDown(KeyCode.Alpha1))
-        {
-            shiftableWeapon.TimeShift();
-        }
+        // if (Input.GetKeyDown(KeyCode.Alpha1))
+        // {
+        //     shiftableWeapon.TimeShift();
+        // }
         
         // TODO: Should be in the weapon script since raycast props should change based on weapon
         if (Input.GetButtonDown("Fire1"))
@@ -37,12 +37,12 @@ public class PlayerKillController : NetworkBehaviour
                 return;
             };
             
-            if (hit.collider.gameObject.CompareTag("Target"))
-            {
-                Destroy(hit.collider.gameObject);
-                shiftableWeapon.TimeShift();
-                OnKill();
-            }
+            // if (hit.collider.gameObject.CompareTag("Target"))
+            // {
+            //     Destroy(hit.collider.gameObject);
+            //     shiftableWeapon.TimeShift();
+            //     OnKill();
+            // }
                 
             if (hit.collider.gameObject.CompareTag("Player"))
             {
