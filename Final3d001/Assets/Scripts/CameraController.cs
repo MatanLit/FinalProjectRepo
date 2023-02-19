@@ -7,7 +7,6 @@ using UnityEngine;
 public class CameraController : NetworkBehaviour
 {
     public GameObject mainCamera;
-    [SerializeField] Transform playerTransform;
 
     private void Start()
     {
@@ -19,9 +18,9 @@ public class CameraController : NetworkBehaviour
             }
             else
             {
-                foreach (Transform childObject in transform)
+                foreach (Transform childObject in mainCamera.transform)
                 {
-                    childObject.transform.parent = playerTransform;
+                    childObject.transform.parent = transform;
                 }
             }
         }
