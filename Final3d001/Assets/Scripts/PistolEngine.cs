@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class PistolEngine : MonoBehaviour
 {
-    public float damage = 10f;
+    public float damage = 51f;
     public float range = 100f;
-    public float fireRate = 0.1f;
+    public float fireRate = 0.2f;
     public int magazineSize = 12;
     public float bulletSpeed = 500f;
 

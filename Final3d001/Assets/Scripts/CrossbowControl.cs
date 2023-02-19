@@ -4,45 +4,49 @@ using UnityEngine;
 
 public class CrossbowControl : MonoBehaviour
 {
-    /*[SerializeField]
-    Transform arrowSpawnPointPos;*/
     [SerializeField]
     GameObject arrowPrefab;
     [SerializeField]
     float arrowSpeed = 10.0f;
     [SerializeField]
-    
+    float fireRate = 0.8f;
 
     private Animator myAnim;
+    private bool canShoot = true;
+    private float nextFireTime = 0.0f;
 
-    // Start is called before the first frame update
     void Start()
     {
-        Debug.Log("Collision detected");
         myAnim = gameObject.GetComponent<Animator>();
     }
 
-    // Update is called once per frame
     void Update()
     {
-        if (Input.GetButtonDown("Fire1"))
+        if (Input.GetButtonDown("Fire1") && canShoot && Time.time >= nextFireTime)
         {
-            GameObject newArrow = Instantiate(arrowPrefab, transform.position, Quaternion.Euler(0, transform.rotation.y + 180, 0));
+            GameObject newArrow = Instantiate(arrowPrefab, transform.position, Quaternion.LookRotation(transform.forward) * Quaternion.Euler(0, 180, 0));
             StartCoroutine(StartFireAnim());
 
             Rigidbody arrowRigidbody = newArrow.GetComponent<Rigidbody>();
             if (arrowRigidbody)
             {
-                arrowRigidbody.AddForce(-transform.forward * arrowSpeed * Time.deltaTime);
+                arrowRigidbody.AddForce(transform.forward * arrowSpeed * Time.deltaTime);
             }
         }
+
+        if (Time.time >= nextFireTime)
+        {
+            canShoot = true;
+        }
     }
-    
 
     IEnumerator StartFireAnim()
     {
+        canShoot = false;
+        nextFireTime = Time.time + fireRate;
+
         myAnim.Play("CrossbowFire");
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(0.8f);
         myAnim.Play("New State");
     }
 }

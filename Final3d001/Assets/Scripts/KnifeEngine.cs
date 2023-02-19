@@ -5,7 +5,7 @@ using UnityEngine;
 public class KnifeEngine : MonoBehaviour
 {
 
-    public float damage = 10;
+    public float damage = 34;
     public float range = 2f;
     private Camera cam;
     public GameObject Weapon;
