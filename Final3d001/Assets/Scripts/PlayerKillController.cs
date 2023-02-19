@@ -11,11 +11,19 @@ public class PlayerKillController : NetworkBehaviour
 
     void Start()
     {
-        shiftableWeapon = GameObject.Find("Weapon").GetComponent<TimeShiftableObject>();
+        if (IsClient && IsOwner)
+        {
+            shiftableWeapon = GameObject.Find("Weapon").GetComponent<TimeShiftableObject>();
+        }
     }
 
     void Update()
     {
+        if (!IsClient || !IsOwner)
+        {
+            return;
+        }
+        
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
             shiftableWeapon.TimeShift();

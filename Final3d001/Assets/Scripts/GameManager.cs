@@ -1,11 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
-public class GameManager : MonoBehaviour
+public class GameManager : NetworkBehaviour
 {
     static int UI_LAYER = 5;
     public static int GlobalKillCount = 0;
+    private NetworkVariable<int> GlobalKillCountNetwork = new NetworkVariable<int>();
     List<string> uniqueKilledPlayerIds = new List<string>();
     List<string> playerIds = new List<string>();
 
@@ -49,12 +51,23 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
-        // print($"GlobalKillCount: {GlobalKillCount}");
+        if (GlobalKillCountNetwork.Value != GlobalKillCount)
+        {
+            GlobalKillCount = GlobalKillCountNetwork.Value;
+        }
+        
         if (GlobalKillCount >= 1)
         {
-            GlobalKillCount = 0;
             ShiftTimeForAllUpgradeableUIObjects();
+            SendUpdateToAllClientsServerRpc(GlobalKillCount);
+            GlobalKillCount = 0;
         }
+    }
+    
+    [ServerRpc]
+    public void SendUpdateToAllClientsServerRpc(int killCount)
+    {
+        GlobalKillCountNetwork.Value = killCount;
     }
 
     public static void ShiftTimeForAllUpgradeableUIObjects()
