@@ -10,12 +10,12 @@ public class CrossbowControl : MonoBehaviour
     float arrowSpeed = 10.0f;
     [SerializeField]
     float fireRate = 0.8f;
+    [SerializeField]
+    float arrowOffset = 1.0f; 
 
     private Animator myAnim;
     private bool canShoot = true;
     private float nextFireTime = 0.0f;
-
-
 
     void Start()
     {
@@ -26,11 +26,11 @@ public class CrossbowControl : MonoBehaviour
     {
         if (Input.GetButtonDown("Fire1") && canShoot && Time.time >= nextFireTime)
         {
-            GameObject newArrow = Instantiate(arrowPrefab, transform.position, Quaternion.LookRotation(transform.forward) * Quaternion.Euler(0, 180, 0));
+            Vector3 arrowSpawnPos = transform.position + transform.forward * arrowOffset; 
+            GameObject newArrow = Instantiate(arrowPrefab, arrowSpawnPos, Quaternion.LookRotation(transform.forward) * Quaternion.Euler(0, 180, 0));
             StartCoroutine(StartFireAnim());
 
             Rigidbody arrowRigidbody = newArrow.GetComponent<Rigidbody>();
-
 
             if (arrowRigidbody)
             {

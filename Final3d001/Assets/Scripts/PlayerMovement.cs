@@ -55,7 +55,7 @@ public class PlayerMovement : NetworkBehaviour
         Cursor.visible = false;
 
         //Player Rotation
-        lookSpeed = 500f;
+        lookSpeed =100f;
         rotationX = 0f;
 
         //Player Movement
@@ -65,7 +65,7 @@ public class PlayerMovement : NetworkBehaviour
         //Gravity
         isGrounded = false;
         radius = 0.6f;
-        gravity = -1.21f;
+        gravity = -9.81f *2;
 
         spawnPosition = GameManager.GetAvailableSpawnPoint();
         transform.position = spawnPosition;
@@ -224,7 +224,7 @@ public class PlayerMovement : NetworkBehaviour
 
         if (Input.GetButtonDown("Jump") && isGrounded == true)
         {
-            velocity.y += 0.25f;
+            velocity.y += 8f;
         }
     }
 
