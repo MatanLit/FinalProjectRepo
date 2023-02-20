@@ -7,9 +7,9 @@ using UnityEngine;
 public class PlayerKillController : NetworkBehaviour
 {
     int killCount = 0;
+    bool oldIsBeingHit = false;
     public int health = 100;
     [SerializeField] TimeShiftableObject shiftableWeapon;
-    bool oldIsBeingHit = false;
     private NetworkVariable<PlayerWeaponData> weaponState = new NetworkVariable<PlayerWeaponData>();
     private NetworkVariable<Vector3> playerPosition = new NetworkVariable<Vector3>();
 
@@ -48,10 +48,15 @@ public class PlayerKillController : NetworkBehaviour
     
     private void OnWeaponStateChanged(PlayerWeaponData oldWeaponData, PlayerWeaponData newWeaponData)
     {
-        print($"weapon state changed {oldWeaponData.playerId} {newWeaponData.playerId}");
-        if (newWeaponData.playerId == NetworkManager.LocalClientId)
+        print($"weapon state changed {oldWeaponData.playerId} {newWeaponData.playerId} {NetworkManager.LocalClientId}");
+        
+        try
         {
-            shiftableWeapon.TimeShift();
+            NetworkManager.ConnectedClients[newWeaponData.playerId].PlayerObject.GetComponent<PlayerKillController>().shiftableWeapon.TimeShift();
+        }
+        catch (Exception e)
+        {
+            print($"error {e}");
         }
     }
     
