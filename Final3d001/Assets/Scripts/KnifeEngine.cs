@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
 
-public class KnifeEngine : MonoBehaviour
+public class KnifeEngine : NetworkBehaviour
 {
 
     public float damage = 34;
@@ -24,25 +24,26 @@ public class KnifeEngine : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // if (IsClient && IsOwner)
-        // {
-            if (Input.GetButtonDown("Fire1") && canStab)
-            {
-                StartCoroutine(StartStab());
-                StartCoroutine(StartShot());
-                canStab = false;
-                currentStabCooldown = stabCooldown;
-            }
+        if (!IsOwner)
+        {
+            return;
+        }
+        if (Input.GetButtonDown("Fire1") && canStab)
+        {
+            StartCoroutine(StartStab());
+            StartCoroutine(StartShot());
+            canStab = false;
+            currentStabCooldown = stabCooldown;
+        }
 
-            if (!canStab)
+        if (!canStab)
+        {
+            currentStabCooldown -= Time.deltaTime;
+            if (currentStabCooldown <= 0.0f)
             {
-                currentStabCooldown -= Time.deltaTime;
-                if (currentStabCooldown <= 0.0f)
-                {
-                    canStab = true;
-                }
+                canStab = true;
             }
-        // }
+        }
     }
 
 

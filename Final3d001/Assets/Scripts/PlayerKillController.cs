@@ -8,15 +8,16 @@ public class PlayerKillController : NetworkBehaviour
 {
     int killCount = 0;
     bool oldIsBeingHit = false;
-    public int health = 100;
     [SerializeField] TimeShiftableObject shiftableWeapon;
     private NetworkVariable<PlayerWeaponData> weaponState = new NetworkVariable<PlayerWeaponData>();
     private NetworkVariable<Vector3> playerPosition = new NetworkVariable<Vector3>();
+    public NetworkVariable<int> health = new NetworkVariable<int>(100);
 
     private void Awake()
     {
         playerPosition.OnValueChanged += OnPlayerPositionChanged;
         weaponState.OnValueChanged += OnWeaponStateChanged;
+        health.OnValueChanged += OnHealthChanged;
     }
 
     void Update()
@@ -33,10 +34,27 @@ public class PlayerKillController : NetworkBehaviour
             if (hit.collider.gameObject.CompareTag("Player") && IsOwner)
             {
                 PlayerKillController hitPlayerController = hit.collider.gameObject.GetComponent<PlayerKillController>();
-                hitPlayerController.TakeAHit();
+                hitPlayerController.TakeAHitServerRpc();
+                print($"hit player {hitPlayerController.health.Value}");
                 
-                transmitWeaponIndexServerRpc();
-                shiftableWeapon.TimeShift();
+                if (hitPlayerController.health.Value - 10 == 0)
+                {
+                    transmitWeaponIndexServerRpc();
+                    shiftableWeapon.TimeShift();
+                }
+            }
+        }
+    }
+    
+    private void OnHealthChanged(int oldHealth, int newHealth)
+    {
+        if (IsOwner)
+        {
+            print($"Health: {newHealth} ");
+            if (newHealth == 0)
+            {
+                health.Value = 100;
+                Respawn();
             }
         }
     }
@@ -52,25 +70,28 @@ public class PlayerKillController : NetworkBehaviour
         
         try
         {
-            NetworkManager.ConnectedClients[newWeaponData.playerId].PlayerObject.GetComponent<PlayerKillController>().shiftableWeapon.TimeShift();
+            if (IsServer)
+            {
+                NetworkManager.ConnectedClients[newWeaponData.playerId].PlayerObject.GetComponent<PlayerKillController>().shiftableWeapon.TimeShift();
+            }
         }
         catch (Exception e)
         {
             print($"error {e}");
         }
     }
-    
-    public void TakeAHit()
+
+    [ServerRpc (RequireOwnership = false)]
+    void TakeAHitServerRpc()
     {
-        health -= 10;
-        
-        if (health <= 0)
+        health.Value -= 10;
+        if (health.Value <= 0)
         {
-            health = 100;
+            health.Value = 100;
             Respawn();
         }
     }
-    
+
     void Respawn()
     {
         print("Respawning");

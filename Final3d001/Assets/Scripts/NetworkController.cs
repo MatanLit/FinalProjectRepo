@@ -19,7 +19,6 @@ public class NetworkController : MonoBehaviour
 
     void Start()
     {
-        //Init();
         StartCoroutine(InitializeGame());
     }
 
@@ -51,8 +50,17 @@ public class NetworkController : MonoBehaviour
                 yield return null;
             }
 
-            print($"JOIN CODE {relayServerJoinCode.text}");
-            var clientRelayUtilityTask = JoinRelayServerFromJoinCode(relayServerJoinCode.text);
+            Task<RelayServerData> clientRelayUtilityTask = null;
+            
+            try
+            {
+                print($"JOIN CODE {relayServerJoinCode.text}");
+                clientRelayUtilityTask = JoinRelayServerFromJoinCode(relayServerJoinCode.text);
+            }
+            catch (Exception error)
+            {
+                print(error);
+            }
 
             while (!clientRelayUtilityTask.IsCompleted)
             {
@@ -62,7 +70,7 @@ public class NetworkController : MonoBehaviour
             if (clientRelayUtilityTask.IsFaulted)
             {
                 Debug.LogError("Exception thrown when attempting to connect to Relay Server. Exception: " + clientRelayUtilityTask.Exception.Message);
-                yield break;
+                yield return null;
             }
 
             RelayServerData relayServerData = clientRelayUtilityTask.Result;

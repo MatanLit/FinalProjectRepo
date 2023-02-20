@@ -66,7 +66,7 @@ public class PlayerMovement : NetworkBehaviour
         Cursor.visible = false;
 
         //Player Rotation
-        lookSpeed =100f;
+        lookSpeed = 250f;
         rotationX = 0f;
 
         //Player Movement
