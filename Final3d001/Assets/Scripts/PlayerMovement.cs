@@ -65,7 +65,7 @@ public class PlayerMovement : NetworkBehaviour
         //Gravity
         isGrounded = false;
         radius = 0.6f;
-        gravity = -9.81f;
+        gravity = -1.21f;
 
         spawnPosition = GameManager.GetAvailableSpawnPoint();
         transform.position = spawnPosition;
@@ -90,6 +90,20 @@ public class PlayerMovement : NetworkBehaviour
         if (IsClient && IsOwner)
         {
             UpdateFromClient();
+        }
+
+		if (Input.GetKeyDown(KeyCode.M))
+		{
+            
+            Cursor.visible = !Cursor.visible;
+            if(!Cursor.visible)
+			{
+                Cursor.lockState = CursorLockMode.Locked;
+            }
+			else
+			{
+                Cursor.lockState = CursorLockMode.None;
+            }
         }
     }
     
@@ -210,7 +224,7 @@ public class PlayerMovement : NetworkBehaviour
 
         if (Input.GetButtonDown("Jump") && isGrounded == true)
         {
-            velocity.y += 6f;
+            velocity.y += 0.25f;
         }
     }
 

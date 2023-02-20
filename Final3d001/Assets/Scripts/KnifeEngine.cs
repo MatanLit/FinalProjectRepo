@@ -48,7 +48,7 @@ public class KnifeEngine : NetworkBehaviour
     IEnumerator StartStab()
     {
         Weapon.GetComponent<Animator>().Play("KnifeStab");
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(0.7f);
         Weapon.GetComponent<Animator>().Play("New State");
     }
 

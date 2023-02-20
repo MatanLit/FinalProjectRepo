@@ -7,6 +7,9 @@ public class ArrowEngine : MonoBehaviour
 
     float penetrationDepth = 0.5f;
 
+    [SerializeField]
+    private float damage = 34f;
+
 
 
 
@@ -29,18 +32,28 @@ public class ArrowEngine : MonoBehaviour
     {
         Debug.Log("Hit!");
 
-        if (!collision.gameObject.CompareTag("Arrow")) return;
-        
-        GameObject arrow = collision.gameObject;
+        //if (!collision.gameObject.CompareTag("ArrowHitAble")) return;
 
-        arrow.transform.parent = collision.transform;
-        arrow.transform.position = collision.contacts[0].point - arrow.transform.forward * penetrationDepth;
-
+        GameObject arrow = gameObject;
         Rigidbody arrowRigidbody = arrow.GetComponent<Rigidbody>();
-        
         if (arrowRigidbody)
         {
             arrowRigidbody.isKinematic = true;
+        }
+
+        Vector3 contactPoint = collision.contacts[0].point;
+        Quaternion contactRotation = Quaternion.LookRotation(collision.contacts[0].normal, transform.up);
+
+        arrow.transform.parent = collision.transform;
+        arrow.transform.position = contactPoint;
+
+        // Align arrow with contact normal
+        arrow.transform.rotation = contactRotation * Quaternion.Euler(0, 0, -90);
+
+        Target target = collision.gameObject.GetComponent<Target>();
+        if (target != null && target.tag == "ArrowHitAble")
+        {
+            target.TakeDamage(damage);
         }
     }
 

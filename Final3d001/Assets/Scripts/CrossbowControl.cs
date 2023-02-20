@@ -15,6 +15,8 @@ public class CrossbowControl : MonoBehaviour
     private bool canShoot = true;
     private float nextFireTime = 0.0f;
 
+
+
     void Start()
     {
         myAnim = gameObject.GetComponent<Animator>();
@@ -28,6 +30,8 @@ public class CrossbowControl : MonoBehaviour
             StartCoroutine(StartFireAnim());
 
             Rigidbody arrowRigidbody = newArrow.GetComponent<Rigidbody>();
+
+
             if (arrowRigidbody)
             {
                 arrowRigidbody.AddForce(transform.forward * arrowSpeed * Time.deltaTime);
