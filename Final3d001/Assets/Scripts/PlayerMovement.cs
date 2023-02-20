@@ -230,6 +230,7 @@ public class PlayerMovement : NetworkBehaviour
 
     public void Respawn()
     {
+        print($"Respawn {spawnPosition}");
         transform.position = spawnPosition;
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
@@ -8,6 +9,8 @@ public class PlayerKillController : NetworkBehaviour
     public int health = 100;
     int killCount = 0;
     private TimeShiftableObject shiftableWeapon;
+    private NetworkVariable<bool> damageNetwork = new NetworkVariable<bool>();
+    bool oldIsBeingHit = false;
 
     void Start()
     {
@@ -19,49 +22,75 @@ public class PlayerKillController : NetworkBehaviour
 
     void Update()
     {
-        if (!IsClient || !IsOwner)
+        if (IsOwner)
         {
-            return;
-        }
-        
-        // if (Input.GetKeyDown(KeyCode.Alpha1))
-        // {
-        //     shiftableWeapon.TimeShift();
-        // }
-        
-        // TODO: Should be in the weapon script since raycast props should change based on weapon
-        if (Input.GetButtonDown("Fire1"))
-        {
-            if (!Physics.Raycast(transform.position, transform.forward, out var hit, 100))
-            {
-                return;
-            };
-            
-            // if (hit.collider.gameObject.CompareTag("Target"))
-            // {
-            //     Destroy(hit.collider.gameObject);
-            //     shiftableWeapon.TimeShift();
-            //     OnKill();
-            // }
-                
-            if (hit.collider.gameObject.CompareTag("Player"))
-            {
-                PlayerKillController hitPlayer = hit.collider.gameObject.GetComponent<PlayerKillController>();
-                hitPlayer.OnHit();
 
-                if (hitPlayer.health <= 0)
+            // if (Input.GetKeyDown(KeyCode.Alpha1))
+            // {
+            //     shiftableWeapon.TimeShift();
+            // }
+
+            // TODO: Should be in the weapon script since raycast props should change based on weapon
+            if (Input.GetButtonDown("Fire1"))
+            {
+                if (!Physics.Raycast(transform.position, transform.forward, out var hit, 100))
                 {
-                    OnKill();
+                    return;
+                }
+
+                // if (hit.collider.gameObject.CompareTag("Target"))
+                // {
+                //     Destroy(hit.collider.gameObject);
+                //     shiftableWeapon.TimeShift();
+                //     OnKill();
+                // }
+
+
+                
+                if (hit.collider.gameObject.CompareTag("Player"))
+                {
+                    PlayerKillController hitPlayer = hit.collider.gameObject.GetComponent<PlayerKillController>();
+                    try
+                    {
+                        ulong clientId = hit.collider.GetComponent<NetworkObject>().OwnerClientId;
+                        print($"collide id? {clientId}");
+                        OnHitPlayerServerRpc(clientId);
+                    } catch (Exception e)
+                    {
+                        print($"collide id error {e}");
+                    }
                 }
             }
         }
     }
 
+    private void OnTriggerEnter(Collider other)
+    {
+        print($"Trigger enter {other.gameObject.name}");
+    }
+    
+
+    [ServerRpc]
+    void OnHitPlayerServerRpc(ulong clientId)
+    {
+        if (NetworkManager.ConnectedClients.ContainsKey(clientId))
+        {
+            var client = NetworkManager.ConnectedClients[clientId];
+            print($"Hit player {client.PlayerObject.name} {client.PlayerObject}");
+            client.PlayerObject.GetComponent<PlayerKillController>().OnHit();
+        }
+    }
+    
     public void OnHit()
     {
+        if (!IsOwner)
+        {
+            return;
+        }
+        
         health -= 10;
-        print("Player hit! Health: " + health);
-
+        print("I was hit!" + health);
+            
         if (health <= 0)
         {
             health = 100;

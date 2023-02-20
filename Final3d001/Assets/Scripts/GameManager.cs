@@ -9,11 +9,11 @@ public class GameManager : NetworkBehaviour
     public static int GlobalKillCount = 0;
     private NetworkVariable<int> GlobalKillCountNetwork = new NetworkVariable<int>();
     List<string> uniqueKilledPlayerIds = new List<string>();
-    
-    // static List<string> playerIds = new List<string>();
-    // private List<string> oldPlayerIds;
-    // private static NetworkVariable<List<string>> playerIdsNetwork = new NetworkVariable<List<string>>();
-    
+
+    static List<string> playerIds = new List<string>();
+    List<string> oldPlayerIds = new List<string>();
+    static NetworkVariable<string> playerIdsNetwork = new NetworkVariable<string>();
+
     // List of spwan points in map. TODO: Some data structure that combines
     // Vector3 and boolean
     public static int[][] SpawnPoints = new int[30][]
@@ -50,15 +50,32 @@ public class GameManager : NetworkBehaviour
         new int[4] { 39, 0, 39, 0 },
     };
 
-    void Start() { }
+    void Start()
+    {
+    }
 
     void Update()
     {
+        if (IsServer)
+        {
+            try
+            {
+                foreach (ulong clientId in NetworkManager.Singleton.ConnectedClientsIds)
+                {
+                    // print($"Client: {clientId}");
+                }
+            }
+            catch (System.Exception e)
+            {
+                print($"PlayerIds: {e}");
+            }
+        }
+
         if (GlobalKillCountNetwork.Value != GlobalKillCount)
         {
             GlobalKillCount = GlobalKillCountNetwork.Value;
         }
-        
+
         if (GlobalKillCount >= 1)
         {
             ShiftTimeForAllUpgradeableUIObjects();
@@ -66,13 +83,7 @@ public class GameManager : NetworkBehaviour
             GlobalKillCount = 0;
         }
     }
-    
-    // [ServerRpc]
-    // public void AddPlayerServerRpc(string playerId)
-    // {
-    //     playerIdsNetwork.Value.Add(playerId);
-    // }
-    
+
     [ServerRpc]
     public void SendUpdateToAllClientsServerRpc(int killCount)
     {
@@ -112,7 +123,7 @@ public class GameManager : NetworkBehaviour
                 // != 0 aka =1, which means the spawn point is taken
                 continue;
             }
-            
+
             Vector3 availablePosition = new Vector3(spawnPoint[0], spawnPoint[1], spawnPoint[2]);
             spawnPoint[3] = 1; // 1 = taken
             print($"SpawnPoint: {availablePosition}");

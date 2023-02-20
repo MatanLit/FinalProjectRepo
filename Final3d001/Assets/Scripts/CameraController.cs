@@ -21,6 +21,7 @@ public class CameraController : NetworkBehaviour
         }
         else
         {
+            mainCamera.SetActive(false);
             // mainCamera.transform.GetChild(0).transform.parent = transform;
             
             // FIXME: foreach only works on the first child

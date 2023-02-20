@@ -24,23 +24,28 @@ public class KnifeEngine : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!IsClient || !IsOwner) return;
-
-        if (Input.GetButtonDown("Fire1") && canStab)
+        if (IsClient && IsOwner)
         {
-            StartCoroutine(StartStab());
-            StartCoroutine(StartShot());
-            canStab = false;
-            currentStabCooldown = stabCooldown;
-        }
-
-        if (!canStab)
-        {
-            currentStabCooldown -= Time.deltaTime;
-            if (currentStabCooldown <= 0.0f)
+            if (Input.GetButtonDown("Fire1") && canStab)
             {
-                canStab = true; 
+                StartCoroutine(StartStab());
+                StartCoroutine(StartShot());
+                canStab = false;
+                currentStabCooldown = stabCooldown;
             }
+
+            if (!canStab)
+            {
+                currentStabCooldown -= Time.deltaTime;
+                if (currentStabCooldown <= 0.0f)
+                {
+                    canStab = true;
+                }
+            }
+        }
+        else
+        {
+            print("Not client or not owner");
         }
     }
 
@@ -55,7 +60,7 @@ public class KnifeEngine : NetworkBehaviour
     IEnumerator StartShot()
     {
         yield return new WaitForSeconds(0.23f); //Anim hit delay
-        ShootRaycast();
+        // ShootRaycast();
     }
 
     void ShootRaycast()

@@ -68,32 +68,9 @@ public class NetworkController : MonoBehaviour
             RelayServerData relayServerData = clientRelayUtilityTask.Result;
 
             NetworkManager.Singleton.GetComponent<UnityTransport>().SetRelayServerData(relayServerData);
-            
-            print($"PlayerID: {AuthenticationService.Instance.PlayerId}");
-            
-            // GameManager.AddPlayer(AuthenticationService.Instance.PlayerId);
-
-            NetworkManager.Singleton.StartClient();
+            bool isSuccess = NetworkManager.Singleton.StartClient();
         }
     }
-
-
-    //async void Init()
-    //{
-    //    await AuthenticatingAPlayer();
-
-    //    if (isHost)
-    //    {
-    //        var serverRelayUtilityTask = AllocateRelayServerAndGetJoinCode(20);
-    //        var relayServerData = serverRelayUtilityTask.Result;
-    //        NetworkManager.Singleton.GetComponent<UnityTransport>().SetRelayServerData(relayServerData);
-    //        NetworkManager.Singleton.StartHost();
-    //    }
-    //    else
-    //    {
-    //        NetworkManager.Singleton.StartClient();
-    //    }
-    //}
 
     static async Task<RelayServerData> AllocateRelayServerAndGetJoinCode(int maxConnections, TMP_InputField code, string region = null)
     {
