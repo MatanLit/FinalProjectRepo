@@ -10,9 +10,27 @@ public class CameraController : NetworkBehaviour
 
     private void Start()
     {
-        if (IsClient && IsOwner)
+        if (!IsClient)
+        {
+            return;
+        };
+        
+        if (IsOwner)
         {
             mainCamera.SetActive(true);
+        }
+        else
+        {
+            // mainCamera.transform.GetChild(0).transform.parent = transform;
+            
+            // FIXME: foreach only works on the first child
+            // foreach (Transform childObject in mainCamera.transform)
+            // {
+            //     print($"Moving {childObject.name} to {transform.name}");
+            //     childObject.transform.parent = transform;
+            //     childObject.transform.position = transform.position;
+            //     childObject.gameObject.SetActive(true);
+            // }
         }
     }
 
@@ -22,18 +40,5 @@ public class CameraController : NetworkBehaviour
         {
             return;
         }
-
-        //mainCamera.transform.position = transform.position;
-
-        //mouseX = Input.GetAxis("Mouse X") * lookSpeed * Time.deltaTime;
-        //playerTransform.Rotate(0, mouseX, 0);
-
-        //mouseY = Input.GetAxis("Mouse Y") * lookSpeed * Time.deltaTime;
-        //cameraX -= mouseY;
-        //cameraX = Mathf.Clamp(cameraX, -90, 90);
-
-        //cameraTurn.Rotate(mouseY, 0, 0);
-        //cameraTurn.localRotation = Quaternion.Euler(cameraX, 0, 0);
-        //print($"CAMERA TURN: {cameraTurn}");
     }
 }

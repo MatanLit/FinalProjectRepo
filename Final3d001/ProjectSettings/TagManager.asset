@@ -7,6 +7,7 @@ TagManager:
   - TimeShiftable
   - ArrowHitAble
   - Arrow
+  - Target
   layers:
   - Default
   - TransparentFX

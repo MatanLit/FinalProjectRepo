@@ -7,33 +7,51 @@ public class PlayerKillController : NetworkBehaviour
 {
     public int health = 100;
     int killCount = 0;
+    private TimeShiftableObject shiftableWeapon;
 
-    void Start() { }
+    void Start()
+    {
+        if (IsClient && IsOwner)
+        {
+            // shiftableWeapon = GameObject.Find("Weapon").GetComponent<TimeShiftableObject>();
+        }
+    }
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Alpha1))
+        if (!IsClient || !IsOwner)
         {
-            GameObject.Find("Weapon").GetComponent<TimeShiftableObject>().TimeShift();
+            return;
         }
         
-        if (Input.GetKeyDown(KeyCode.N))
+        // if (Input.GetKeyDown(KeyCode.Alpha1))
+        // {
+        //     shiftableWeapon.TimeShift();
+        // }
+        
+        // TODO: Should be in the weapon script since raycast props should change based on weapon
+        if (Input.GetButtonDown("Fire1"))
         {
-            // raycast forward
-            RaycastHit hit;
-            if (Physics.Raycast(transform.position, transform.forward, out hit, 100))
+            if (!Physics.Raycast(transform.position, transform.forward, out var hit, 100))
             {
-                print("Hit: " + hit.collider.gameObject.name);
-                if (hit.collider.gameObject.tag == "Player")
-                {
-                    PlayerKillController hitPlayer =
-                        hit.collider.gameObject.GetComponent<PlayerKillController>();
-                    hitPlayer.OnHit();
+                return;
+            };
+            
+            // if (hit.collider.gameObject.CompareTag("Target"))
+            // {
+            //     Destroy(hit.collider.gameObject);
+            //     shiftableWeapon.TimeShift();
+            //     OnKill();
+            // }
+                
+            if (hit.collider.gameObject.CompareTag("Player"))
+            {
+                PlayerKillController hitPlayer = hit.collider.gameObject.GetComponent<PlayerKillController>();
+                hitPlayer.OnHit();
 
-                    if (hitPlayer.health <= 0)
-                    {
-                        OnKill();
-                    }
+                if (hitPlayer.health <= 0)
+                {
+                    OnKill();
                 }
             }
         }
