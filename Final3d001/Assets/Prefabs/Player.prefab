@@ -225,7 +225,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   lookSpeed: 0
   cameraTurn: {fileID: 2993911646909984707}
-  moveSpeed: 25
+  moveSpeed: 5
   isGrounded: 0
   groundLayerMask:
     serializedVersion: 2
@@ -243,7 +243,7 @@ CharacterController:
   m_Enabled: 1
   serializedVersion: 2
   m_Height: 2
-  m_Radius: 0.6
+  m_Radius: 0.44
   m_SlopeLimit: 45
   m_StepOffset: 0.3
   m_SkinWidth: 0.08
@@ -624,6 +624,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 74498093779717818}
     m_Modifications:
+    - target: {fileID: -7547674072547882812, guid: 1e685dd4ac382144683be60497a20a00, type: 3}
+      propertyPath: damage
+      value: 34
+      objectReference: {fileID: 0}
     - target: {fileID: 1970774854402566765, guid: 1e685dd4ac382144683be60497a20a00, type: 3}
       propertyPath: m_RootOrder
       value: 0
@@ -787,7 +791,8 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 6694310328986369313, guid: 5fd6db02a2663924691fdfe84fa881b1, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 5fd6db02a2663924691fdfe84fa881b1, type: 3}
 --- !u!4 &4511429305807049017 stripped
 Transform:
@@ -803,7 +808,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1677968947474393416, guid: 4d99e9102ce05e44ebe2b07ac57a20c6, type: 3}
       propertyPath: arrowSpeed
-      value: 12500
+      value: 15000
       objectReference: {fileID: 0}
     - target: {fileID: 3388358344999559773, guid: 4d99e9102ce05e44ebe2b07ac57a20c6, type: 3}
       propertyPath: m_RootOrder
@@ -963,7 +968,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2e650451500f19947865899490d60601, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damage: 10
+  damage: 26
   range: 100
   fireRate: 0.1
   magazineSize: 12
