@@ -601,6 +601,7 @@ MonoBehaviour:
   arrowPrefab: {fileID: 2690552465043654439, guid: 7b44585e934328e4dbeafcf937367c37, type: 3}
   arrowSpeed: 50000
   fireRate: 1
+  arrowOffset: 2
 --- !u!1 &3673590256887217929
 GameObject:
   m_ObjectHideFlags: 0
