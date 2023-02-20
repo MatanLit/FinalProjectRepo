@@ -1,8 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.Netcode;
 
-public class KnifeEngine : MonoBehaviour
+public class KnifeEngine : NetworkBehaviour
 {
 
     public float damage = 34;
@@ -23,6 +24,7 @@ public class KnifeEngine : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (!IsClient || !IsOwner) return;
 
         if (Input.GetButtonDown("Fire1") && canStab)
         {
@@ -40,8 +42,6 @@ public class KnifeEngine : MonoBehaviour
                 canStab = true; 
             }
         }
-
-
     }
 
 

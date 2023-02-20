@@ -10,19 +10,27 @@ public class CameraController : NetworkBehaviour
 
     private void Start()
     {
-        if (IsClient)
+        if (!IsClient)
         {
-            if (IsOwner)
-            {
-                mainCamera.SetActive(true);
-            }
-            else
-            {
-                foreach (Transform childObject in mainCamera.transform)
-                {
-                    childObject.transform.parent = transform;
-                }
-            }
+            return;
+        };
+        
+        if (IsOwner)
+        {
+            mainCamera.SetActive(true);
+        }
+        else
+        {
+            // mainCamera.transform.GetChild(0).transform.parent = transform;
+            
+            // FIXME: foreach only works on the first child
+            // foreach (Transform childObject in mainCamera.transform)
+            // {
+            //     print($"Moving {childObject.name} to {transform.name}");
+            //     childObject.transform.parent = transform;
+            //     childObject.transform.position = transform.position;
+            //     childObject.gameObject.SetActive(true);
+            // }
         }
     }
 
