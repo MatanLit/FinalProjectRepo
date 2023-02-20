@@ -3,22 +3,35 @@ using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
-public class GameManager : NetworkBehaviour
+public class Player
+{
+    private ulong id;
+    private Vector3 respawnPoint;
+    private GameObject shiftableWeapon;
+
+    public Player(ulong id, Vector3 respawnPoint, GameObject shiftableWeapon)
+    {
+        this.id = id;
+        this.respawnPoint = respawnPoint;
+        this.shiftableWeapon = shiftableWeapon;
+    }
+}
+
+public class GameManager : MonoBehaviour
 {
     static int UI_LAYER = 5;
     public static int GlobalKillCount = 0;
     private NetworkVariable<int> GlobalKillCountNetwork = new NetworkVariable<int>();
-    List<string> uniqueKilledPlayerIds = new List<string>();
+    [SerializeField] private GameObject shiftableWeapon;
 
-    static List<string> playerIds = new List<string>();
-    List<string> oldPlayerIds = new List<string>();
-    static NetworkVariable<string> playerIdsNetwork = new NetworkVariable<string>();
+    static HashSet<Player> playerIds = new HashSet<Player>();
 
     // List of spwan points in map. TODO: Some data structure that combines
     // Vector3 and boolean
-    public static int[][] SpawnPoints = new int[30][]
+    public static int[][] SpawnPoints = new int[31][]
     {
         new int[4] { 7, 0, 8, 0 },
+        new int[4] { 8, 0, 9, 0 },
         new int[4] { 20, 4, 25, 0 },
         new int[4] { 20, 0, -4, 0 },
         new int[4] { 25, 5, 6, 0 },
@@ -56,20 +69,20 @@ public class GameManager : NetworkBehaviour
 
     void Update()
     {
-        if (IsServer)
-        {
-            try
-            {
-                foreach (ulong clientId in NetworkManager.Singleton.ConnectedClientsIds)
-                {
-                    // print($"Client: {clientId}");
-                }
-            }
-            catch (System.Exception e)
-            {
-                print($"PlayerIds: {e}");
-            }
-        }
+        // if (IsServer)
+        // {
+        //     try
+        //     {
+        //         foreach (ulong clientId in NetworkManager.Singleton.ConnectedClientsIds)
+        //         {
+        //             UpdatePlayerIdsServerRpc(clientId);
+        //         }
+        //     }
+        //     catch (System.Exception e)
+        //     {
+        //         print($"PlayerIds: {e}");
+        //     }
+        // }
 
         if (GlobalKillCountNetwork.Value != GlobalKillCount)
         {
@@ -82,6 +95,22 @@ public class GameManager : NetworkBehaviour
             SendUpdateToAllClientsServerRpc(GlobalKillCount);
             GlobalKillCount = 0;
         }
+    }
+
+    [ServerRpc]
+    public void UpdatePlayerIdsServerRpc(ulong playerId)
+    {
+        // TODO: on client disconnect, remove player from playerIds
+        playerIds.Add(new Player(playerId, GetAvailableSpawnPoint(), shiftableWeapon));
+        // print($"server RPC player ids {playerIds}");
+        UpdatePlayerIdsClientRpc(playerId);
+    }
+    
+    [ClientRpc]
+    public void UpdatePlayerIdsClientRpc(ulong playerId)
+    {
+        playerIds.Add(new Player(playerId, GetAvailableSpawnPoint(), shiftableWeapon));
+        // print($"client RPC player ids {playerIds}");
     }
 
     [ServerRpc]

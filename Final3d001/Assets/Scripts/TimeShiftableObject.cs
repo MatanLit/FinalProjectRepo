@@ -1,30 +1,24 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
 // TODO: GameManager should inherit from NetworkBehaviour and transfer data to all objects
 public class TimeShiftableObject : MonoBehaviour
 {
-    [SerializeField]
-    int timeShiftLevel = 0;
-
-    [SerializeField]
-    List<GameObject> upgradeables;
+    [SerializeField] int timeShiftLevel = 0;
 
     void Start()
     {
-        for (int i = 0; i < upgradeables.Count; i++)
+        for (int i = 0; i < transform.childCount; i++)
         {
-            Vector3 position = new Vector3(0, 0.2f, 0.6f);
-            GameObject upgradeableObject = Instantiate(upgradeables[i], position, Quaternion.identity);
-            upgradeableObject.transform.parent = transform;
-            upgradeableObject.SetActive(i == timeShiftLevel);
+            transform.GetChild(i).gameObject.SetActive(i == timeShiftLevel);
         }
     }
 
     public void TimeShift()
     {
-        if (timeShiftLevel + 1 >= upgradeables.Count)
+        if (timeShiftLevel + 1 >= transform.childCount)
         {
             timeShiftLevel = 0;
         }
@@ -33,9 +27,38 @@ public class TimeShiftableObject : MonoBehaviour
             timeShiftLevel++;
         }
 
-        for (int i = 0; i < upgradeables.Count; i++)
+        for (int i = 0; i < transform.childCount; i++)
         {
-            transform.GetChild(i).gameObject.SetActive(i == timeShiftLevel);
+            bool isActive = i == timeShiftLevel;
+            transform.GetChild(i).gameObject.SetActive(isActive);
         }
+        
+        // OnTimeShiftServerRpc(timeShiftLevel);
     }
+    
+    // [ServerRpc (RequireOwnership = false)]
+    // void OnTimeShiftServerRpc(int serverTimeShiftLevel, ServerRpcParams serverRpcParams = default)
+    // {
+    //     var clientId = serverRpcParams.Receive.SenderClientId;
+    //     if (!NetworkManager.ConnectedClients.ContainsKey(clientId))
+    //     {
+    //         return;
+    //     }
+    //     
+    //     
+    //     var client = NetworkManager.ConnectedClients[clientId];
+    //     TimeShiftableObject shiftableWeapon = client.PlayerObject.GetComponentInChildren<TimeShiftableObject>();
+    //     print($"server time shift {shiftableWeapon} for client id {clientId}");
+    //     shiftableWeapon.TimeShiftClientRpc(serverTimeShiftLevel);
+    // }
+    //
+    // [ClientRpc]
+    // void TimeShiftClientRpc(int serverTimeShiftLevel)
+    // {
+    //     print($"client time shift {serverTimeShiftLevel} for client id {NetworkManager.LocalClientId}");
+    //     for (int i = 0; i < transform.childCount; i++)
+    //     {
+    //         transform.GetChild(i).gameObject.SetActive(i == serverTimeShiftLevel);
+    //     }
+    // }
 }

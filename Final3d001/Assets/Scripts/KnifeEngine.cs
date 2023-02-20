@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
 
-public class KnifeEngine : NetworkBehaviour
+public class KnifeEngine : MonoBehaviour
 {
 
     public float damage = 34;
@@ -24,8 +24,8 @@ public class KnifeEngine : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (IsClient && IsOwner)
-        {
+        // if (IsClient && IsOwner)
+        // {
             if (Input.GetButtonDown("Fire1") && canStab)
             {
                 StartCoroutine(StartStab());
@@ -42,11 +42,7 @@ public class KnifeEngine : NetworkBehaviour
                     canStab = true;
                 }
             }
-        }
-        else
-        {
-            print("Not client or not owner");
-        }
+        // }
     }
 
 

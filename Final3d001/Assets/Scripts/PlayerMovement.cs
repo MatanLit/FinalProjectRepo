@@ -48,7 +48,18 @@ public class PlayerMovement : NetworkBehaviour
 
     bool isLookingLocked = false;
     Vector3 spawnPosition;
-
+    
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+        
+        if (!IsOwner)
+        {
+            Destroy(this);
+        }
+    }
+    
+    
     void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
