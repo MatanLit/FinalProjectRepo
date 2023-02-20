@@ -6,7 +6,7 @@ public class PistolEngine : MonoBehaviour
 {
     public float damage = 51f;
     public float range = 100f;
-    public float fireRate = 0.2f;
+    public float fireRate = 0.3f;
     public int magazineSize = 12;
     public float bulletSpeed = 500f;
 
@@ -19,10 +19,12 @@ public class PistolEngine : MonoBehaviour
     private int roundsInInventory;
     private float nextFireTime = 0f;
 
+    public GameObject weapon;
+
     void Start()
     {
         roundsRemaining = magazineSize;
-        roundsInInventory = magazineSize * 4;
+        roundsInInventory = magazineSize * 1000;
     }
 
     void Update()
@@ -30,8 +32,10 @@ public class PistolEngine : MonoBehaviour
         if (Input.GetButtonDown("Fire1") && roundsRemaining > 0 && Time.time >= nextFireTime)
         {
             Shoot();
+            StartCoroutine(StartShootAnim());
             roundsRemaining--;
             nextFireTime = Time.time + fireRate;
+            StartShootAnim();
         }
 
         if (Input.GetKeyDown(KeyCode.R) && roundsRemaining < magazineSize)
@@ -47,8 +51,8 @@ public class PistolEngine : MonoBehaviour
         // GetComponent<AudioSource>().Play();
 
         Debug.Log(roundsRemaining);
-        Debug.Log(roundsInInventory);
 
+        
 
         GameObject bullet = Instantiate(bulletPrefab, transform);
 
@@ -59,6 +63,8 @@ public class PistolEngine : MonoBehaviour
             bulletHole.transform.parent = hit.transform;
             bulletHole.transform.position += hit.normal * 0.001f; // Offset-z
 
+            
+
             Target targetHealth = hit.collider.GetComponent<Target>();
             if (targetHealth != null)
             {
@@ -67,5 +73,12 @@ public class PistolEngine : MonoBehaviour
         }
 
         Destroy(bullet, 2f);
+    }
+
+    IEnumerator StartShootAnim()
+    {        
+        weapon.GetComponent<Animator>().Play("PistolFire");
+        yield return new WaitForSeconds(0.3f);
+        weapon.GetComponent<Animator>().Play("New State");
     }
 }
