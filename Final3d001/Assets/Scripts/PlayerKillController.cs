@@ -10,136 +10,173 @@ public class PlayerKillController : NetworkBehaviour
     public int health = 100;
     [SerializeField] TimeShiftableObject shiftableWeapon;
     bool oldIsBeingHit = false;
+    private NetworkVariable<PlayerWeaponData> weaponState = new NetworkVariable<PlayerWeaponData>();
+    private NetworkVariable<Vector3> playerPosition = new NetworkVariable<Vector3>();
 
-    public override void OnNetworkSpawn()
+    private void Awake()
     {
-        base.OnNetworkSpawn();
-        gameObject.name = $"Player-{NetworkObject.OwnerClientId}";
-        
-        if (!IsOwner)
-        {
-            Destroy(this);
-        }
+        playerPosition.OnValueChanged += OnPlayerPositionChanged;
+        weaponState.OnValueChanged += OnWeaponStateChanged;
     }
 
     void Update()
     {
-        if (IsOwner)
+        // TODO: Should be in the weapon script since raycast props should change based on weapon
+        if (Input.GetButtonDown("Fire1"))
         {
-
-            if (Input.GetKeyDown(KeyCode.Alpha1))
+            if (!Physics.Raycast(transform.position, transform.forward, out var hit, 100))
             {
+                return;
+            }
+
+
+            if (hit.collider.gameObject.CompareTag("Player") && IsOwner)
+            {
+                PlayerKillController hitPlayerController = hit.collider.gameObject.GetComponent<PlayerKillController>();
+                hitPlayerController.TakeAHit();
+                
+                transmitWeaponIndexServerRpc();
                 shiftableWeapon.TimeShift();
             }
-
-            // TODO: Should be in the weapon script since raycast props should change based on weapon
-            if (Input.GetButtonDown("Fire1"))
-            {
-                if (!Physics.Raycast(transform.position, transform.forward, out var hit, 100))
-                {
-                    return;
-                }
-
-                // if (hit.collider.gameObject.CompareTag("Target"))
-                // {
-                //     Destroy(hit.collider.gameObject);
-                //     shiftableWeapon.TimeShift();
-                //     OnKill();
-                // }
-
-
-                
-                if (hit.collider.gameObject.CompareTag("Player"))
-                {
-                    PlayerKillController hitPlayer = hit.collider.gameObject.GetComponent<PlayerKillController>();
-                    try
-                    {
-                        ulong clientId = hit.collider.GetComponent<NetworkObject>().OwnerClientId;
-                        OnHitServerRpc(clientId);
-                    } catch (Exception e)
-                    {
-                        print($"collide id error {e}");
-                    }
-                }
-            }
         }
-    }
-
-    private void OnTriggerEnter(Collider other)
-    {
-        print($"Trigger enter {other.gameObject.name}");
-    }
-
-    [ServerRpc]
-    void OnHitServerRpc(ulong clientId, ServerRpcParams serverRpcParams = default)
-    {
-        if (NetworkManager.ConnectedClients.ContainsKey(clientId))
-        {
-            ulong senderClientId = serverRpcParams.Receive.SenderClientId; 
-            NetworkClient targetClient = NetworkManager.ConnectedClients[clientId];
-            
-            print($"Hitting player {targetClient.PlayerObject.name} {targetClient.PlayerObject}");
-            PlayerKillController playerTarget = targetClient.PlayerObject.GetComponent<PlayerKillController>();
-            playerTarget.OnHitPlayerClientRpc(senderClientId);
-            // announce all players
-            TestClientRpc(senderClientId);
-            
-            // if (playerTarget.health - 10 == 0)
-            // {
-            //     OnKillSuccess(senderClientId);    
-            // }
-        }
-    }
-
-    [ClientRpc]
-    void TestClientRpc(ulong killerId)
-    {
-        GameObject killerPlayer = GameObject.Find($"Player-{killerId}");
-        print($"Searching player {killerId} -- found? {killerPlayer}");
-        killerPlayer.GetComponent<PlayerKillController>().shiftableWeapon.TimeShift();
     }
     
-    [ClientRpc]
-    void OnHitPlayerClientRpc(ulong killerId)
+    private void OnPlayerPositionChanged(Vector3 oldPosition, Vector3 newPosition)
+    {
+        transform.position = newPosition;
+    }
+    
+    private void OnWeaponStateChanged(PlayerWeaponData oldWeaponData, PlayerWeaponData newWeaponData)
+    {
+        print($"weapon state changed {oldWeaponData.playerId} {newWeaponData.playerId}");
+        if (newWeaponData.playerId == NetworkManager.LocalClientId)
+        {
+            shiftableWeapon.TimeShift();
+        }
+    }
+    
+    public void TakeAHit()
     {
         health -= 10;
-        print($"I was hit! Health: {health}, id: {NetworkObject.OwnerClientId}");
-            
+        
         if (health <= 0)
         {
             health = 100;
-            print($"{NetworkObject.OwnerClientId} was killed by {killerId}");
-            GetComponent<PlayerMovement>().Respawn();
-        }
-    }
-
-    void OnKillSuccess()
-    {
-        killCount++;
-        GameManager.GlobalKillCount++;
-
-        if (killCount % 1 == 0)
-        {
-            shiftableWeapon.TimeShift();
-            // ShiftWeaponServerRpc(killerId);
-        }
-    }
-
-    [ServerRpc]
-    void ShiftWeaponServerRpc(ulong killerId, ServerRpcParams serverRpcParams = default)
-    {
-        // ulong clientId = serverRpcParams.Receive.SenderClientId;
-        if (NetworkManager.ConnectedClients.ContainsKey(killerId))
-        {
-            var client = NetworkManager.ConnectedClients[killerId];
-            print($"server time shift for client id {killerId}");
-            client.PlayerObject.GetComponent<PlayerKillController>().ShiftWeaponClientRpc();
+            Respawn();
         }
     }
     
-    [ClientRpc]
-    void ShiftWeaponClientRpc()
+    void Respawn()
     {
-        shiftableWeapon.TimeShift();
+        print("Respawning");
+        transmitPlayerPositionServerRpc(PlayerMovement.spawnPosition);
+        transform.position = PlayerMovement.spawnPosition;
     }
+    
+    [ServerRpc (RequireOwnership = false)]
+    void transmitPlayerPositionServerRpc(Vector3 position)
+    {
+        playerPosition.Value = position;
+    }
+    
+    [ServerRpc (RequireOwnership = false)]
+    void transmitWeaponIndexServerRpc(ServerRpcParams serverRpcParams = default)
+    {
+        ulong senderClientId = serverRpcParams.Receive.SenderClientId;
+        if (!NetworkManager.ConnectedClients.ContainsKey(senderClientId))
+        {
+            return;
+        }
+        
+        weaponState.Value = new PlayerWeaponData()
+        {
+            weaponIndex = weaponState.Value.weaponIndex + 1,
+            playerId = senderClientId
+        };
+    }
+    
+    struct PlayerWeaponData: INetworkSerializable
+    {
+        public int weaponIndex;
+        public ulong playerId;
+        
+        public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T: IReaderWriter
+        {
+            serializer.SerializeValue(ref weaponIndex);
+            serializer.SerializeValue(ref playerId);
+        }
+    }
+
+    // [ServerRpc]
+    // void OnHitServerRpc(ulong clientId, ServerRpcParams serverRpcParams = default)
+    // {
+    //     if (NetworkManager.ConnectedClients.ContainsKey(clientId))
+    //     {
+    //         ulong senderClientId = serverRpcParams.Receive.SenderClientId;
+    //         NetworkClient targetClient = NetworkManager.ConnectedClients[clientId];
+    //
+    //         print($"Hitting player {targetClient.PlayerObject.name} {targetClient.PlayerObject}");
+    //         PlayerKillController playerTarget = targetClient.PlayerObject.GetComponent<PlayerKillController>();
+    //         playerTarget.OnHitPlayerClientRpc(senderClientId);
+    //         // announce all players
+    //         TestClientRpc(senderClientId);
+    //
+    //         // if (playerTarget.health - 10 == 0)
+    //         // {
+    //         //     OnKillSuccess(senderClientId);    
+    //         // }
+    //     }
+    // }
+    //
+    // [ClientRpc]
+    // void TestClientRpc(ulong killerId)
+    // {
+    //     GameObject killerPlayer = GameObject.Find($"Player-{killerId}");
+    //     print($"Searching player {killerId} -- found? {killerPlayer}");
+    //     killerPlayer.GetComponent<PlayerKillController>().shiftableWeapon.TimeShift();
+    // }
+    //
+    // [ClientRpc]
+    // void OnHitPlayerClientRpc(ulong killerId)
+    // {
+    //     health -= 10;
+    //     print($"I was hit! Health: {health}, id: {NetworkObject.OwnerClientId}");
+    //
+    //     if (health <= 0)
+    //     {
+    //         health = 100;
+    //         print($"{NetworkObject.OwnerClientId} was killed by {killerId}");
+    //         // GetComponent<PlayerMovement>().Respawn();
+    //     }
+    // }
+    //
+    // void OnKillSuccess()
+    // {
+    //     killCount++;
+    //     GameManager.GlobalKillCount++;
+    //
+    //     if (killCount % 1 == 0)
+    //     {
+    //         shiftableWeapon.TimeShift();
+    //         // ShiftWeaponServerRpc(killerId);
+    //     }
+    // }
+    //
+    // [ServerRpc]
+    // void ShiftWeaponServerRpc(ulong killerId, ServerRpcParams serverRpcParams = default)
+    // {
+    //     // ulong clientId = serverRpcParams.Receive.SenderClientId;
+    //     if (NetworkManager.ConnectedClients.ContainsKey(killerId))
+    //     {
+    //         var client = NetworkManager.ConnectedClients[killerId];
+    //         print($"server time shift for client id {killerId}");
+    //         client.PlayerObject.GetComponent<PlayerKillController>().ShiftWeaponClientRpc();
+    //     }
+    // }
+
+    // [ClientRpc]
+    // void ShiftWeaponClientRpc()
+    // {
+    //     shiftableWeapon.TimeShift();
+    // }
 }

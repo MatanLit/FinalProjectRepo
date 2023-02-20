@@ -47,17 +47,17 @@ public class PlayerMovement : NetworkBehaviour
     Vector3 oldVelocity = Vector3.zero;
 
     bool isLookingLocked = false;
-    Vector3 spawnPosition;
-    
-    public override void OnNetworkSpawn()
-    {
-        base.OnNetworkSpawn();
-        
-        if (!IsOwner)
-        {
-            Destroy(this);
-        }
-    }
+    public static Vector3 spawnPosition;
+
+    // public override void OnNetworkSpawn()
+    // {
+    //     base.OnNetworkSpawn();
+    //     
+    //     if (!IsOwner)
+    //     {
+    //         Destroy(this);
+    //     }
+    // }
     
     
     void Start()
@@ -84,6 +84,11 @@ public class PlayerMovement : NetworkBehaviour
 
     private void Update()
     {
+        // if (!IsOwner)
+        // {
+        //     transform.position = playerPosition.Value;
+        // }
+        
         if (Input.GetKeyDown(KeyCode.T))
         {
             TeleportToNextSpawnPoint();
@@ -239,9 +244,21 @@ public class PlayerMovement : NetworkBehaviour
         }
     }
 
-    public void Respawn()
-    {
-        print($"Respawn {spawnPosition}");
-        transform.position = spawnPosition;
-    }
+    // public void Respawn()
+    // {
+    //     if (!IsOwner)
+    //     {
+    //         return;
+    //     }
+    //     
+    //     print($"Respawn {spawnPosition}");
+    //     transform.position = spawnPosition;
+    //     transmitPlayerPositionServerRpc(spawnPosition);
+    // }
+    //
+    // [ServerRpc]
+    // public void transmitPlayerPositionServerRpc(Vector3 position)
+    // {
+    //     playerPosition.Value = position;
+    // }
 }
