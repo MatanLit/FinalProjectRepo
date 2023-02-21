@@ -1,8 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
-public class PistolEngine : MonoBehaviour
+public class PistolEngine : NetworkBehaviour
 {
     public float damage = 51f;
     public float range = 100f;
@@ -29,6 +30,11 @@ public class PistolEngine : MonoBehaviour
 
     void Update()
     {
+        if (!IsOwner)
+        {
+            return;
+        }
+
         if (Input.GetButtonDown("Fire1") && roundsRemaining > 0 && Time.time >= nextFireTime)
         {
             Shoot();
@@ -52,7 +58,7 @@ public class PistolEngine : MonoBehaviour
 
         Debug.Log(roundsRemaining);
 
-        
+
 
         GameObject bullet = Instantiate(bulletPrefab, transform);
 
@@ -63,7 +69,7 @@ public class PistolEngine : MonoBehaviour
             bulletHole.transform.parent = hit.transform;
             bulletHole.transform.position += hit.normal * 0.001f; // Offset-z
 
-            
+
 
             Target targetHealth = hit.collider.GetComponent<Target>();
             if (targetHealth != null)
@@ -76,7 +82,7 @@ public class PistolEngine : MonoBehaviour
     }
 
     IEnumerator StartShootAnim()
-    {        
+    {
         weapon.GetComponent<Animator>().Play("PistolFire");
         yield return new WaitForSeconds(0.3f);
         weapon.GetComponent<Animator>().Play("New State");
