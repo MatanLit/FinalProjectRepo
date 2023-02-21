@@ -38,7 +38,7 @@ public class PlayerKillController : NetworkBehaviour
 
     void Update()
     {
-        switch (weaponState.Value.weaponIndex)
+        switch (weaponState.Value.weaponIndex % 3)
         {
             case 0: // knife
                 damage = 51;
@@ -54,10 +54,9 @@ public class PlayerKillController : NetworkBehaviour
                 break;
         }
 
-        // TODO: Should be in the weapon script since raycast props should change based on weapon
         if (Input.GetButtonDown("Fire1"))
         {
-            if (!Physics.Raycast(transform.position, transform.forward, out var hit, 100))
+            if (!Physics.Raycast(transform.position, transform.forward, out var hit, range))
             {
                 return;
             }
@@ -129,7 +128,6 @@ public class PlayerKillController : NetworkBehaviour
 
     void Respawn()
     {
-        print("Respawning");
         transmitPlayerPositionServerRpc(PlayerMovement.spawnPosition);
         transform.position = PlayerMovement.spawnPosition;
     }
