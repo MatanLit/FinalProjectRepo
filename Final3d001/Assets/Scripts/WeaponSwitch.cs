@@ -1,33 +1,31 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
-public class WeaponSwitch : MonoBehaviour
+public class WeaponSwitch : NetworkBehaviour
 {
     public GameObject Slot1;
     public GameObject Slot2;
     public GameObject Slot3;
-
-    // Start is called before the first frame update
-    void Start()
-    {
-
-    }
-
-    // Update is called once per frame
+    
     void Update()
     {
-        if (Input.GetKeyDown("1"))
+        if (!IsOwner)
+        {
+            return;
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha1))
         {
             Equip1();
         }
 
-        if (Input.GetKeyDown("2"))
+        if (Input.GetKeyDown(KeyCode.Alpha2))
         {
             Equip2();
         }
 
-        if (Input.GetKeyDown("3"))
+        if (Input.GetKeyDown(KeyCode.Alpha3))
         {
             Equip3();
         }

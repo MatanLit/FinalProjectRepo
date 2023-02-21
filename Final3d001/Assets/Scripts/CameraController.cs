@@ -7,6 +7,7 @@ using UnityEngine;
 public class CameraController : NetworkBehaviour
 {
     public GameObject mainCamera;
+    [SerializeField] private GameObject otherCamera;
 
     private void Start()
     {
@@ -18,9 +19,12 @@ public class CameraController : NetworkBehaviour
         if (IsOwner)
         {
             mainCamera.SetActive(true);
+            otherCamera.SetActive(false);
         }
         else
         {
+            mainCamera.SetActive(false);
+            otherCamera.SetActive(true);
             // mainCamera.transform.GetChild(0).transform.parent = transform;
             
             // FIXME: foreach only works on the first child

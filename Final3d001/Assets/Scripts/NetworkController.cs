@@ -19,7 +19,6 @@ public class NetworkController : MonoBehaviour
 
     void Start()
     {
-        //Init();
         StartCoroutine(InitializeGame());
     }
 
@@ -51,8 +50,17 @@ public class NetworkController : MonoBehaviour
                 yield return null;
             }
 
-            print($"JOIN CODE {relayServerJoinCode.text}");
-            var clientRelayUtilityTask = JoinRelayServerFromJoinCode(relayServerJoinCode.text);
+            Task<RelayServerData> clientRelayUtilityTask = null;
+            
+            try
+            {
+                print($"JOIN CODE {relayServerJoinCode.text}");
+                clientRelayUtilityTask = JoinRelayServerFromJoinCode(relayServerJoinCode.text);
+            }
+            catch (Exception error)
+            {
+                print(error);
+            }
 
             while (!clientRelayUtilityTask.IsCompleted)
             {
@@ -62,38 +70,15 @@ public class NetworkController : MonoBehaviour
             if (clientRelayUtilityTask.IsFaulted)
             {
                 Debug.LogError("Exception thrown when attempting to connect to Relay Server. Exception: " + clientRelayUtilityTask.Exception.Message);
-                yield break;
+                yield return null;
             }
 
             RelayServerData relayServerData = clientRelayUtilityTask.Result;
 
             NetworkManager.Singleton.GetComponent<UnityTransport>().SetRelayServerData(relayServerData);
-            
-            print($"PlayerID: {AuthenticationService.Instance.PlayerId}");
-            
-            // GameManager.AddPlayer(AuthenticationService.Instance.PlayerId);
-
-            NetworkManager.Singleton.StartClient();
+            bool isSuccess = NetworkManager.Singleton.StartClient();
         }
     }
-
-
-    //async void Init()
-    //{
-    //    await AuthenticatingAPlayer();
-
-    //    if (isHost)
-    //    {
-    //        var serverRelayUtilityTask = AllocateRelayServerAndGetJoinCode(20);
-    //        var relayServerData = serverRelayUtilityTask.Result;
-    //        NetworkManager.Singleton.GetComponent<UnityTransport>().SetRelayServerData(relayServerData);
-    //        NetworkManager.Singleton.StartHost();
-    //    }
-    //    else
-    //    {
-    //        NetworkManager.Singleton.StartClient();
-    //    }
-    //}
 
     static async Task<RelayServerData> AllocateRelayServerAndGetJoinCode(int maxConnections, TMP_InputField code, string region = null)
     {

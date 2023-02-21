@@ -24,8 +24,10 @@ public class KnifeEngine : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!IsClient || !IsOwner) return;
-
+        if (!IsOwner)
+        {
+            return;
+        }
         if (Input.GetButtonDown("Fire1") && canStab)
         {
             StartCoroutine(StartStab());
@@ -39,7 +41,7 @@ public class KnifeEngine : NetworkBehaviour
             currentStabCooldown -= Time.deltaTime;
             if (currentStabCooldown <= 0.0f)
             {
-                canStab = true; 
+                canStab = true;
             }
         }
     }
@@ -55,7 +57,7 @@ public class KnifeEngine : NetworkBehaviour
     IEnumerator StartShot()
     {
         yield return new WaitForSeconds(0.23f); //Anim hit delay
-        ShootRaycast();
+        // ShootRaycast();
     }
 
     void ShootRaycast()
