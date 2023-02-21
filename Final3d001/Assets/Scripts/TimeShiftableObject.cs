@@ -4,9 +4,15 @@ using Unity.Netcode;
 using UnityEngine;
 
 // TODO: GameManager should inherit from NetworkBehaviour and transfer data to all objects
-public class TimeShiftableObject : MonoBehaviour
+public class TimeShiftableObject : NetworkBehaviour
 {
     [SerializeField] int timeShiftLevel = 0;
+    public NetworkVariable<int> timeShiftLevelNetworkVariable = new NetworkVariable<int>(0);
+
+    void Awake()
+    {
+        timeShiftLevelNetworkVariable.OnValueChanged += OnTimeShiftLevelChanged;
+    }
 
     void Start()
     {
@@ -14,10 +20,19 @@ public class TimeShiftableObject : MonoBehaviour
         {
             transform.GetChild(i).gameObject.SetActive(i == timeShiftLevel);
         }
+
+        // Invoke("TimeShift", 5);
+    }
+
+    void OnTimeShiftLevelChanged(int oldTimeShiftLevel, int newTimeShiftLevel)
+    {
+        print($"time shift level changed {oldTimeShiftLevel} -> {newTimeShiftLevel}");
+        TimeShift();
     }
 
     public void TimeShift()
     {
+        print($"time shift {timeShiftLevel} for {NetworkManager.LocalClientId}");
         if (timeShiftLevel + 1 >= transform.childCount)
         {
             timeShiftLevel = 0;
@@ -32,10 +47,9 @@ public class TimeShiftableObject : MonoBehaviour
             bool isActive = i == timeShiftLevel;
             transform.GetChild(i).gameObject.SetActive(isActive);
         }
-        
-        // OnTimeShiftServerRpc(timeShiftLevel);
+
     }
-    
+
     // [ServerRpc (RequireOwnership = false)]
     // void OnTimeShiftServerRpc(int serverTimeShiftLevel, ServerRpcParams serverRpcParams = default)
     // {

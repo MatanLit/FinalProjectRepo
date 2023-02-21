@@ -10,29 +10,9 @@ public class ArrowEngine : MonoBehaviour
     [SerializeField]
     private float damage = 34f;
 
-
-
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-		
-
-
-    }
-
     private void OnCollisionEnter(Collision collision)
     {
         Debug.Log("Hit!");
-
-        //if (!collision.gameObject.CompareTag("ArrowHitAble")) return;
 
         GameObject arrow = gameObject;
         Rigidbody arrowRigidbody = arrow.GetComponent<Rigidbody>();
@@ -56,6 +36,4 @@ public class ArrowEngine : MonoBehaviour
             target.TakeDamage(damage);
         }
     }
-
-
 }

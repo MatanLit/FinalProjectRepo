@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
+using TMPro;
 
 public class PlayerKillController : NetworkBehaviour
 {
@@ -15,9 +16,21 @@ public class PlayerKillController : NetworkBehaviour
 
     private void Awake()
     {
+        gameObject.name = $"Player-{GetComponent<NetworkObject>().OwnerClientId}";
+
         playerPosition.OnValueChanged += OnPlayerPositionChanged;
         weaponState.OnValueChanged += OnWeaponStateChanged;
         health.OnValueChanged += OnHealthChanged;
+    }
+
+    private void Start()
+    {
+        if (IsOwner)
+        {
+            // Randomize player color
+            GameObject head = GameObject.Find("Head (1)");
+            head.GetComponent<Renderer>().material.color = new Color(UnityEngine.Random.value, UnityEngine.Random.value, UnityEngine.Random.value);
+        }
     }
 
     void Update()
@@ -35,22 +48,22 @@ public class PlayerKillController : NetworkBehaviour
             {
                 PlayerKillController hitPlayerController = hit.collider.gameObject.GetComponent<PlayerKillController>();
                 hitPlayerController.TakeAHitServerRpc();
-                print($"hit player {hitPlayerController.health.Value}");
-                
+
                 if (hitPlayerController.health.Value - 10 == 0)
                 {
                     transmitWeaponIndexServerRpc();
-                    shiftableWeapon.TimeShift();
                 }
             }
         }
     }
-    
+
     private void OnHealthChanged(int oldHealth, int newHealth)
     {
         if (IsOwner)
         {
-            print($"Health: {newHealth} ");
+            GameObject.Find("PlayerMessages").GetComponent<TextMeshProUGUI>().text = $"Hit! {newHealth}/100 \r\n";
+            Invoke(nameof(ClearPlayerMessages), 4);
+            
             if (newHealth == 0)
             {
                 health.Value = 100;
@@ -58,22 +71,17 @@ public class PlayerKillController : NetworkBehaviour
             }
         }
     }
-    
+
     private void OnPlayerPositionChanged(Vector3 oldPosition, Vector3 newPosition)
     {
         transform.position = newPosition;
     }
-    
+
     private void OnWeaponStateChanged(PlayerWeaponData oldWeaponData, PlayerWeaponData newWeaponData)
     {
-        print($"weapon state changed {oldWeaponData.playerId} {newWeaponData.playerId} {NetworkManager.LocalClientId}");
-        
         try
         {
-            if (IsServer)
-            {
-                NetworkManager.ConnectedClients[newWeaponData.playerId].PlayerObject.GetComponent<PlayerKillController>().shiftableWeapon.TimeShift();
-            }
+            GetComponentInChildren<TimeShiftableObject>().TimeShift();
         }
         catch (Exception e)
         {
@@ -81,15 +89,23 @@ public class PlayerKillController : NetworkBehaviour
         }
     }
 
-    [ServerRpc (RequireOwnership = false)]
+    [ServerRpc(RequireOwnership = false)]
     void TakeAHitServerRpc()
     {
         health.Value -= 10;
+        GameObject.Find("PlayerMessages").GetComponent<TextMeshProUGUI>().text = $"Hit! {health.Value}/100 \r\n";
+        Invoke(nameof(ClearPlayerMessages), 4);
+
         if (health.Value <= 0)
         {
             health.Value = 100;
             Respawn();
         }
+    }
+    
+    void ClearPlayerMessages()
+    {
+        GameObject.Find("PlayerMessages").GetComponent<TextMeshProUGUI>().text = "";
     }
 
     void Respawn()
@@ -98,14 +114,14 @@ public class PlayerKillController : NetworkBehaviour
         transmitPlayerPositionServerRpc(PlayerMovement.spawnPosition);
         transform.position = PlayerMovement.spawnPosition;
     }
-    
-    [ServerRpc (RequireOwnership = false)]
+
+    [ServerRpc(RequireOwnership = false)]
     void transmitPlayerPositionServerRpc(Vector3 position)
     {
         playerPosition.Value = position;
     }
-    
-    [ServerRpc (RequireOwnership = false)]
+
+    [ServerRpc(RequireOwnership = false)]
     void transmitWeaponIndexServerRpc(ServerRpcParams serverRpcParams = default)
     {
         ulong senderClientId = serverRpcParams.Receive.SenderClientId;
@@ -113,20 +129,20 @@ public class PlayerKillController : NetworkBehaviour
         {
             return;
         }
-        
+
         weaponState.Value = new PlayerWeaponData()
         {
             weaponIndex = weaponState.Value.weaponIndex + 1,
             playerId = senderClientId
         };
     }
-    
-    struct PlayerWeaponData: INetworkSerializable
+
+    struct PlayerWeaponData : INetworkSerializable
     {
         public int weaponIndex;
         public ulong playerId;
-        
-        public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T: IReaderWriter
+
+        public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
         {
             serializer.SerializeValue(ref weaponIndex);
             serializer.SerializeValue(ref playerId);

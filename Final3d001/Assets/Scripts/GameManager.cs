@@ -69,21 +69,6 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
-        // if (IsServer)
-        // {
-        //     try
-        //     {
-        //         foreach (ulong clientId in NetworkManager.Singleton.ConnectedClientsIds)
-        //         {
-        //             UpdatePlayerIdsServerRpc(clientId);
-        //         }
-        //     }
-        //     catch (System.Exception e)
-        //     {
-        //         print($"PlayerIds: {e}");
-        //     }
-        // }
-
         if (GlobalKillCountNetwork.Value != GlobalKillCount)
         {
             GlobalKillCount = GlobalKillCountNetwork.Value;

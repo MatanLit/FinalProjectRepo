@@ -569,6 +569,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2321247550239786079}
   - component: {fileID: 345976719731245009}
+  - component: {fileID: 6636791489619235778}
   m_Layer: 0
   m_Name: Guns
   m_TagString: Untagged
@@ -607,6 +608,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   timeShiftLevel: 0
+  timeShiftLevelNetworkVariable:
+    m_InternalValue: 0
+--- !u!114 &6636791489619235778
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1625176781102888715}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 213845cca0b0e7149afa4006497050a3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Slot1: {fileID: 4006407452174329265, guid: 1e685dd4ac382144683be60497a20a00, type: 3}
+  Slot2: {fileID: 3410998967879206928, guid: 4d99e9102ce05e44ebe2b07ac57a20c6, type: 3}
+  Slot3: {fileID: 3560012260000936325, guid: ab9573b5817735f4dbb6eb7bc7badbc9, type: 3}
 --- !u!1 &2045035827659619205
 GameObject:
   m_ObjectHideFlags: 0
@@ -1033,8 +1051,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a385d61244e82394bb44b06c7fb5bb0e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  health: 100
   shiftableWeapon: {fileID: 345976719731245009}
+  health:
+    m_InternalValue: 100
 --- !u!114 &6807047179457469662
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1761,6 +1780,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   timeShiftLevel: 0
+  timeShiftLevelNetworkVariable:
+    m_InternalValue: 0
 --- !u!1 &7550227929348339970
 GameObject:
   m_ObjectHideFlags: 0
