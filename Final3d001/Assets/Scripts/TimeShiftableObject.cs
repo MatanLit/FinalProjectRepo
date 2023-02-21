@@ -20,8 +20,6 @@ public class TimeShiftableObject : NetworkBehaviour
         {
             transform.GetChild(i).gameObject.SetActive(i == timeShiftLevel);
         }
-
-        // Invoke("TimeShift", 5);
     }
 
     void OnTimeShiftLevelChanged(int oldTimeShiftLevel, int newTimeShiftLevel)

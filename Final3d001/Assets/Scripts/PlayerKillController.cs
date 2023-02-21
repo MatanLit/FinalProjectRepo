@@ -14,6 +14,9 @@ public class PlayerKillController : NetworkBehaviour
     private NetworkVariable<Vector3> playerPosition = new NetworkVariable<Vector3>();
     public NetworkVariable<int> health = new NetworkVariable<int>(100);
 
+    int damage = 10;
+    int range = 100;
+
     private void Awake()
     {
         gameObject.name = $"Player-{GetComponent<NetworkObject>().OwnerClientId}";
@@ -35,6 +38,22 @@ public class PlayerKillController : NetworkBehaviour
 
     void Update()
     {
+        switch (weaponState.Value.weaponIndex)
+        {
+            case 0: // knife
+                damage = 51;
+                range = 2;
+                break;
+            case 1: // crossbow
+                damage = 42;
+                range = 80;
+                break;
+            case 2: // pistol
+                damage = 34;
+                range = 100;
+                break;
+        }
+
         // TODO: Should be in the weapon script since raycast props should change based on weapon
         if (Input.GetButtonDown("Fire1"))
         {
@@ -47,9 +66,9 @@ public class PlayerKillController : NetworkBehaviour
             if (hit.collider.gameObject.CompareTag("Player") && IsOwner)
             {
                 PlayerKillController hitPlayerController = hit.collider.gameObject.GetComponent<PlayerKillController>();
-                hitPlayerController.TakeAHitServerRpc();
+                hitPlayerController.TakeAHitServerRpc(damage);
 
-                if (hitPlayerController.health.Value - 10 == 0)
+                if (hitPlayerController.health.Value - damage <= 0)
                 {
                     transmitWeaponIndexServerRpc();
                 }
@@ -63,7 +82,7 @@ public class PlayerKillController : NetworkBehaviour
         {
             GameObject.Find("PlayerMessages").GetComponent<TextMeshProUGUI>().text = $"Hit! {newHealth}/100 \r\n";
             Invoke(nameof(ClearPlayerMessages), 4);
-            
+
             if (newHealth == 0)
             {
                 health.Value = 100;
@@ -90,9 +109,9 @@ public class PlayerKillController : NetworkBehaviour
     }
 
     [ServerRpc(RequireOwnership = false)]
-    void TakeAHitServerRpc()
+    void TakeAHitServerRpc(int damage = 10)
     {
-        health.Value -= 10;
+        health.Value -= damage;
         GameObject.Find("PlayerMessages").GetComponent<TextMeshProUGUI>().text = $"Hit! {health.Value}/100 \r\n";
         Invoke(nameof(ClearPlayerMessages), 4);
 
@@ -102,7 +121,7 @@ public class PlayerKillController : NetworkBehaviour
             Respawn();
         }
     }
-    
+
     void ClearPlayerMessages()
     {
         GameObject.Find("PlayerMessages").GetComponent<TextMeshProUGUI>().text = "";
